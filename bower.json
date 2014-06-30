@@ -1,0 +1,29 @@
+{
+  "name": "seeing",
+  "version": "0.0.1",
+  "dependencies": {
+    "d3": "latest",
+    "rickshaw": "latest"
+  },
+  "private": true,
+  "authors": [
+    "Blake Jakopovic <blake.jakopovic@gmail.com>"
+  ],
+  "description": "Use Arduino Firmata to collect and visualise data from Arduinos",
+  "moduleType": [
+    "amd",
+    "es6",
+    "globals",
+    "node",
+    "yui"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "resources/public/lib/",
+    "test",
+    "tests"
+  ]
+}

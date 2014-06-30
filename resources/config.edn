@@ -1,0 +1,12 @@
+{
+ :clj { :log-level :debug
+
+        :port 4567
+
+        :board-port "cu.usbmodemfd1231"
+        :board-baud 57600
+        :board-buffer-size 1023
+
+        :board-simulation true}
+
+ :cljs {}}
