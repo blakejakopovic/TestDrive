@@ -47,10 +47,11 @@
 (def graph
   (doto
     (Rickshaw.Graph. (clj->js {:element (. js/document (getElementById "chartA1"))
-                               :renderer "line"
+                               :renderer "area"
                                :width 100
                                :height 20
                                :max 1023
+                               :interpolation "step-after"
                                :series (Rickshaw.Series.FixedDuration. (clj->js [{ :name "a1" }])
                                                                        nil
                                                                        (clj->js {:timeInterval 50
@@ -61,7 +62,7 @@
 (def graph2
   (doto
     (Rickshaw.Graph. (clj->js {:element (. js/document (getElementById "chartA2"))
-                               :renderer "line"
+                               :renderer "area"
                                :width 100
                                :height 20
                                :max 1023
