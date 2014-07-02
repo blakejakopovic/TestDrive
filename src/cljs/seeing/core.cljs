@@ -80,6 +80,23 @@
 ;;          (recur (rand-int 1023)))
 
 
+(defn event-handler-ext [[kind payload]]
+  (println kind payload))
+
+
+;;  (let [pin (:pin payload)
+;;        pin-key (keyword (str pin))
+;;        value (or (:value payload) "")]
+;;    (swap! app-state assoc-in [:analog pin-key] {:pin pin :value value})
+
+;;    (if (= pin 1)
+;;      (.addData (.-series graph) (clj->js {:a1 value}))
+;;      (-> graph (.render)))
+
+;;    (if (= pin 2)
+;;      (.addData (.-series graph2) (clj->js {:a2 value}))
+;;      (-> graph2 (.render))))
+
 (let [{:keys [event ch-recv send-fn state]}
       (sente/make-channel-socket! "/events" {:type :auto})]
   (def event        event)
@@ -88,20 +105,10 @@
   (def events-state state))
 
 (defn- event-handler [[id data :as ev] _]
+;;   (println "EVENT>" data)
   (match [id data]
-    [:chsk/recv [:event/new payload]]
-         (let [pin (:pin payload)
-               pin-key (keyword (str pin))
-               value (or (:value payload) "")]
-           (swap! app-state assoc-in [:analog pin-key] {:pin pin :value value})
-
-           (if (= pin 1)
-             (.addData (.-series graph) (clj->js {:a1 value}))
-             (-> graph (.render)))
-
-           (if (= pin 2)
-             (.addData (.-series graph2) (clj->js {:a2 value}))
-             (-> graph2 (.render))))
+    [:chsk/recv payload]
+         (event-handler-ext payload)
 
     [:chsk/state {:first-open? true}]
          (println "Channel socket successfully established!")

@@ -9,6 +9,7 @@
 
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/clojurescript "0.0-2234"]
+
                  [org.clojure/core.async "0.1.303.0-886421-alpha"]
                  [org.clojure/core.match "0.2.1"]
 
@@ -25,7 +26,7 @@
                  [compojure "1.1.8"]
                  [om "0.6.4"]
 
-                 [clj-firmata "1.1.0"]
+                 [clj-firmata "1.1.1-SNAPSHOT"]
                  [clj-time "0.7.0"]]
 
   :plugins [[lein-cljsbuild "1.0.3"]]

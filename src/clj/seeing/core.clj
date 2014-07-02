@@ -15,7 +15,7 @@
   (handler/start-server)
 
   (board/handle-board-events)
-  (info "Awaiting board events.")
+  (info "Ready for board events.")
 
   (board/start-board-events)
   (info "Processing board events."))

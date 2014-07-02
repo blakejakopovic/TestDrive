@@ -11,3 +11,4 @@ resources/public/js/*
 npm-debug.log
 node_modules/
 resources/public/lib/
+/.env

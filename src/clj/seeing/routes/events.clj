@@ -22,11 +22,11 @@
         uid     (:uid session)
         [id data :as ev] event]
 
-    (println "Event: %s" ev)
+    (println "Event: " ev)
     (match [id data]
     ;; TODO: Match your events here, reply when appropriate <...>
     :else
-    (do (println "Unmatched event: %s" ev)
+    (do (println "Unmatched event: " ev)
         (when-not (:dummy-reply-fn? (meta ?reply-fn))
           (?reply-fn {:umatched-event-as-echoed-from-from-server ev}))))))
 

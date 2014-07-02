@@ -9,6 +9,7 @@
               :refer [events-send! connected-uids]]))
 
 (def board (atom nil))
+(def receiver-ch (atom nil))
 
 (def event-ch (chan (sliding-buffer (or (:board-buffer-size config) 1023))))
 
@@ -21,19 +22,18 @@
 
 (defn read-board-events []
   (let [port (or (:board-port config) "cu.usbmodemfd1231")
-        baud (or (:board-baud config) 57600)
-        buff-size (or (:board-buffer-size config) 1023)
-        board-config {:baud-rate baud :event-buffer-size buff-size}]
+;;         baud (or (:board-baud config) 57600)
+;;         buff-size (or (:board-buffer-size config) 1023)
+;;         board-config {:baud-rate baud :event-buffer-size buff-size}
+        ]
     (try
-      (reset! board (firmata/open-board port board-config))
-      (firmata/enable-analog-in-reporting @board 1 true)
-      (firmata/enable-analog-in-reporting @board 2 true)
-      (let [firmata-ch (firmata/event-channel @board)]
+      (reset! board (firmata/open-board port))
+      (reset! receiver-ch (firmata/event-channel @board))
         (go-loop []
-            (when-some [event (<! firmata-ch)]
+            (when-some [event (<! @receiver-ch)]
               (>! event-ch event)
               (println event))
-            (recur)))
+            (recur))
       (catch Exception e (println "Firmata connection error: " e)))))
 
 (defn start-board-events []

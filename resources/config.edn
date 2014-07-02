@@ -3,10 +3,10 @@
 
         :port 4567
 
-        :board-port "cu.usbmodemfd1231"
+        :board-port "cu.usbmodemfd1241" ;; cu.usbmodemfd1231
         :board-baud 57600
         :board-buffer-size 1023
 
-        :board-simulation true}
+        :board-simulation false}
 
  :cljs {}}
