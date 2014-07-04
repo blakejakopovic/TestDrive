@@ -8,7 +8,7 @@
   :source-paths ["src" "src/clj"]
 
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [org.clojure/clojurescript "0.0-2234"]
+                 [org.clojure/clojurescript "0.0-2261"] ;; 0.0-2234
 
                  [org.clojure/core.async "0.1.303.0-886421-alpha"]
                  [org.clojure/core.match "0.2.1"]
@@ -43,4 +43,6 @@
             :output-to  "resources/public/js/main.js"
             :source-map "resources/public/js/main.js.map"
             :optimization :none
-            :pretty-print true}}]})
+            :pretty-print true}}]}
+
+  :repl-options {:init (require 'seeing.repl)})

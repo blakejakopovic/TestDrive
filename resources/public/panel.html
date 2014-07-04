@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Panel</title>
+        <meta name="description" content="Panel">
+
+        <link type="text/css" rel="stylesheet" href="lib/rickshaw/rickshaw.css">
+
+        <script src="lib/d3/d3.js"></script>
+        <script src="lib/rickshaw/rickshaw.js"></script>
+
+        <link href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/cover.css" rel="stylesheet">
+
+        <style>
+            .widget {
+                width: 470px;
+            }
+
+            .widget .panel-body {
+                padding:8px;
+            }
+
+            .widget .widget-value {
+                width:120px;
+                /* background-color:#FF0000; */
+                float:left;
+            }
+
+            .widget .widget-value strong {
+                font-size:42px;
+            }
+
+            .widget .widget-value small {
+                font-size:14px;
+            }
+
+            .widget .widget-stats {
+                width:80px;
+                float:left;
+                padding-top:10px;
+            }
+
+            .widget .widget-stats strong {
+                font-size:14px;
+            }
+
+            .widget .widget-graph {
+                width:250px;
+                float:left;
+                padding-top:6px;
+            }
+
+        </style>
+    </head>
+    <body>
+         <div class="site-wrapper">
+
+             <div class="site-wrapper-inner">
+
+                 <div class="cover-container">
+
+                     <div class="inner cover">
+
+
+                         <div class="panel panel-default widget">
+                             <div class="panel-body clearfix">
+                                 <div class="widget-value text-center">
+                                     <div><strong id="value">21.7</strong></div>
+                                     <div><small>TEMP (C)</small></div>
+                                 </div>
+                                 <div class="widget-stats">
+                                     <div class="widget-stat">
+                                         <strong style="padding-right:6px;">H</strong>
+                                         <span id="high">1021</span>
+                                     </div>
+                                     <div class="widget-stat">
+                                         <strong style="padding-right:3px;">M</strong>
+                                         <span id="avg">356</span>
+                                     </div>
+                                     <div class="widget-stat">
+                                         <strong style="padding-right:10px;">L</strong>
+                                         <span id="low">42</span>
+                                     </div>
+                                 </div>
+                                 <div class="widget-graph">
+                                     <div id="chart"></div>
+                                 </div>
+                             </div>
+                         </div>
+
+                          <div class="panel panel-default widget" style="width: 136px;">
+                             <div class="panel-body clearfix">
+                                 <div class="widget-value text-center">
+                                     <div><strong id="value2">64.3</strong></div>
+                                     <div><small>HUMIDITY (%)</small></div>
+                                 </div>
+                             </div>
+                         </div>
+
+                     </div>
+
+                 </div>
+
+             </div>
+
+        </div>
+
+
+<script>
+
+var tv = 250;
+
+// instantiate our graph!
+var graph = new Rickshaw.Graph( {
+	element: document.getElementById("chart"),
+	width: 200,
+	height: 68,
+	renderer: 'line',
+	series: new Rickshaw.Series.FixedDuration([{ name: 'one' }], undefined, {
+		timeInterval: tv,
+		maxDataPoints: 100,
+		timeBase: new Date().getTime() / 1000
+	})
+} );
+
+graph.render();
+
+var i = 0;
+var iv = setInterval( function() {
+
+    var data = { one: ((Math.round(Math.random() * 60) / 10) + 10) };
+
+	graph.series.addData(data);
+	graph.render();
+
+    document.getElementById("value").innerHTML = ((Math.round(Math.random() * 30) / 10) + 15).toFixed(1);
+    document.getElementById("high").innerHTML = ((Math.round(Math.random() * 30) / 10) + 20).toFixed(1);
+    document.getElementById("avg").innerHTML = ((Math.round(Math.random() * 30) / 10) + 10).toFixed(1);
+    document.getElementById("low").innerHTML = ((Math.round(Math.random() * 30) / 10) + 5).toFixed(1);
+
+    document.getElementById("value2").innerHTML = ((Math.round(Math.random() * 20) / 10) + 61).toFixed(1);
+
+}, tv );
+
+</script>
+
+    </body>
+</html>
