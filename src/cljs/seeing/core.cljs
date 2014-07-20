@@ -13,89 +13,58 @@
 (enable-console-print!)
 
 (def app-container-id "seeing-app")
-(def app-state (atom {:analog {:0 {:pin 0} :1 {:pin 1} :2 {:pin 2}
-                               :3 {:pin 3} :4 {:pin 4} :5 {:pin 5}}}))
+(def app-state (atom {:label {}}))
 
-(defn pin [{:keys [pin value]} data owner]
+(defn kind-for-id [id]
+  (condp = id
+    19 "Temp (℃)"
+    20 "Humidity (%)"))
+
+(defn label-for-id [id]
+  (get (:label @app-state) id (str "ID: " id)))
+
+(defn panel [data owner]
+  (let [value (.toFixed (:value data) 1)
+        kind  (:kind data)]
+    (om/component
+     (dom/div #js {:className "panel panel-default widget widget-short"}
+              (dom/div #js {:className "panel-body clearfix"}
+                       (dom/div #js {:className "widget-value text-center"}
+                                (into-array [(dom/div nil (dom/strong nil value))
+                                             (dom/div nil (dom/small nil (kind-for-id (:kind data))))
+                                             (dom/div nil (dom/small nil (label-for-id (:id data))))])))))))
+
+(defn panel-list [app owner]
   (om/component
-   (dom/div {}
-            (dom/strong nil (str pin ": "))
-            (dom/span nil value)
-            (dom/span #js {:id (str "chartA" pin)} nil))))
+;;     (dom/div nil
+      (dom/div nil
+        (into-array (map #(om/build panel (get-in app [19 %]))
+                          (keys (get app 19))))
+;;       (dom/div nil
+;;         (into-array (map #(om/build panel (get-in app [18 %]))
+;;                           (keys (get app 18))))))
+             )))
 
-(defn pin-list [data owner]
-  (om/component
-   (dom/div nil
-            (dom/div nil
-                     (into-array (map #(om/build pin (-> data :analog %))
-                                      (-> data :analog keys sort)))))))
-
-(defn pin-box [app owner opts]
-  (reify
-    om/IRender
-    (render [_]
-            (dom/h1 nil "Pin Monitor")
-            (om/build pin-list app))))
-
-(om/root pin-box app-state
+(om/root panel-list app-state
   {:target (. js/document (getElementById app-container-id))})
 
+(defn handle-event
+  [payload]
+  (swap! app-state assoc-in [(:kind payload) (:id payload)] payload))
 
-
-;; https://gist.github.com/msgodf/8495781
-
-(def graph
-  (doto
-    (Rickshaw.Graph. (clj->js {:element (. js/document (getElementById "chartA1"))
-                               :renderer "area"
-                               :width 100
-                               :height 20
-                               :max 1023
-                               :interpolation "step-after"
-                               :series (Rickshaw.Series.FixedDuration. (clj->js [{ :name "a1" }])
-                                                                       nil
-                                                                       (clj->js {:timeInterval 50
-                                                                                 :maxDataPoints 100
-                                                                                 :timeBase (. (js/Date.) getTime)}))}))
-    (.render)))
-
-(def graph2
-  (doto
-    (Rickshaw.Graph. (clj->js {:element (. js/document (getElementById "chartA2"))
-                               :renderer "area"
-                               :width 100
-                               :height 20
-                               :max 1023
-                               :series (Rickshaw.Series.FixedDuration. (clj->js [{ :name "a2" }])
-                                                                       nil
-                                                                       (clj->js {:timeInterval 50
-                                                                                 :maxDataPoints 100
-                                                                                 :timeBase (. (js/Date.) getTime)}))}))
-    (.render)))
-
-;; (go-loop [data (rand-int 1023)]
-;;          (.addData (.-series graph) (clj->js {:one data}))
-;;          (-> graph (.render))
-;;          (<! (timeout 50))
-;;          (recur (rand-int 1023)))
-
+(defn handle-label
+  [payload]
+  (swap! app-state assoc-in [:label (:id payload)] (:value payload)))
 
 (defn event-handler-ext [[kind payload]]
-  (println kind payload))
-
-
-;;  (let [pin (:pin payload)
-;;        pin-key (keyword (str pin))
-;;        value (or (:value payload) "")]
-;;    (swap! app-state assoc-in [:analog pin-key] {:pin pin :value value})
-
-;;    (if (= pin 1)
-;;      (.addData (.-series graph) (clj->js {:a1 value}))
-;;      (-> graph (.render)))
-
-;;    (if (= pin 2)
-;;      (.addData (.-series graph2) (clj->js {:a2 value}))
-;;      (-> graph2 (.render))))
+;;   (println kind payload)
+  (let [{:keys [type kind data]} payload]
+    (condp = type
+      :label (handle-label payload)
+      :event (handle-event payload)
+;;           :temperature (swap! app-state assoc :temperature {:value data})
+;;           :humidity    (swap! app-state assoc :humidity {:value data})
+    )))
 
 (let [{:keys [event ch-recv send-fn state]}
       (sente/make-channel-socket! "/events" {:type :auto})]

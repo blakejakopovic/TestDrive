@@ -19,3 +19,6 @@
 
   (board/start-board-events)
   (info "Processing board events."))
+
+
+;; #<IllegalArgumentException java.lang.IllegalArgumentException: No implementation of method: :take! of protocol: #'clojure.core.async.impl.protocols/ReadPort found for class: nil>

@@ -1,9 +1,8 @@
-{
- :clj { :log-level :debug
+{:clj { :log-level :debug
 
         :port 4567
 
-        :board-port "cu.usbmodemfd1241" ;; cu.usbmodemfd1231
+        :board-port "tty.usbmodemfa1331" ;; cu.usbmodemfd1231
         :board-baud 57600
         :board-buffer-size 1023
 
