@@ -116,7 +116,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn read-board-events []
-  (let [port (or (:board-port config) "cu.usbmodemfd1231")
+  (let [port (or (:board-port config) "tty.usbmodemfd1231")
 ;;         baud (or (:board-baud config) 57600)
 ;;         buff-size (or (:board-buffer-size config) 1023)
 ;;         board-config {:baud-rate baud :event-buffer-size buff-size}
