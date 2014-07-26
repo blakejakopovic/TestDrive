@@ -2,7 +2,7 @@
 
         :port 4567
 
-;;         :board-port "tty.usbmodemfd1231"
+        :board-port "tty.usbmodemfd1231"
         :board-baud 57600
         :board-buffer-size 1023
 

@@ -5,6 +5,8 @@
 
     <link href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
 
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+
 	<style>
         body {
             background-color:#101214;
@@ -52,16 +54,38 @@
             background-color:#272727;
             color:#75787A;
             padding:6px 4px 6px 12px;
+            color:#FDFDFD;
         }
 
         li.widget .header .title {
             margin-left:6px;
         }
 
+        li.widget.temperature .header {
+            background-color:#D26666;
+        }
+
+        li.widget.humidity .header {
+            background-color:#6096D3;
+        }
+
+        li.widget.pressure .header {
+            background-color:#98C277;
+        }
+
+        li.widget.altitude .header {
+            background-color:#C77EC7;
+        }
+
+        li.widget.voltage .header {
+            background-color:#D8AD5E;
+        }
+
+
         li.widget .content {
             height:145px;
             background-color:#2A2A2A;
-            padding:8px 16px 8px 20px;
+            padding:12px 16px 8px 20px;
         }
 
         li.widget .content strong {
@@ -77,6 +101,8 @@
             color:#868885;
             font-size:14px;
             text-shadow: 0 1px 1px #333;
+            display:block;
+            margin-bottom:2px;
         }
 
         li.widget .footer {
@@ -95,7 +121,8 @@
 </head>
 
 <body>
-    <ul class="widgets grid">
+<div id="seeing-app">
+<!--     <ul class="widgets grid">
          <li class="widget">
              <div class="header">
                  <span class="glyphicon glyphicon-cloud"></span>
@@ -167,13 +194,11 @@
              <div class="footer updated">updated 0s ago</div>
          </li>
 
-    </ul>
-    <!-- <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script> -->
-	<!-- <script src="jquery.sortable.js"></script> -->
-	<!-- <script>
-		$(function() {
-			$('.widgets').sortable();
-		});
-	</script> -->
+    </ul> -->
+</div>
+
+<script src="http://fb.me/react-0.10.0.js"></script>
+<script type="text/javascript" src="js/main.js"></script>
+
 </body>
 </html>
