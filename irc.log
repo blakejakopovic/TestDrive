@@ -1,0 +1,234 @@
+blur3d: Hey, I have the following app-state/data, and I am trying to avoid nesting the data under the kind and label-id keys. Is there an easy way to update a sensor value in the hashmap? Or is it better to just use nested maps as indexes (and just duplicate the data in the sensor hashmap)?
+[11:15am] kephale left the chat room. (Quit: Leaving.)
+[11:15am] blur3d: http://pastebin.com/WQ1dj2EW
+[11:17am] dbasch left the chat room. (Ping timeout: 240 seconds)
+[11:18am] rpg left the chat room. (Quit: rpg)
+[11:18am] samrat joined the chat room.
+[11:18am] ghadishayban joined the chat room.
+[11:19am] dbasch joined the chat room.
+[11:20am] ka2u joined the chat room.
+[11:21am] samrat left the chat room. (Client Quit)
+[11:21am] moshR joined the chat room.
+[11:21am] wheeee left the chat room. (Quit: Leaving.)
+[11:21am] albemuth joined the chat room.
+[11:22am] TEttinger joined the chat room.
+[11:22am] conan left the chat room. (Ping timeout: 240 seconds)
+[11:23am] ben-o joined the chat room.
+[11:24am] ghadishayban: amalloy_: i have a fix for the lazy-seq reducible thing in CLJ-1250
+[11:24am] TEttinger: you're just a fixing machine lately, ghadishayban!
+[11:25am] ambrosebs joined the chat room.
+[11:25am] conan joined the chat room.
+[11:26am] strangemonad left the chat room. (Quit: strangemonad)
+[11:26am] DomKM joined the chat room.
+[11:27am] robustus left the chat room. (Ping timeout: 250 seconds)
+[11:29am] recycle joined the chat room.
+[11:29am] robustus joined the chat room.
+[11:30am] Hydan left the chat room. (Read error: Connection reset by peer)
+[11:30am] banjara left the chat room. (Quit: Leaving.)
+[11:31am] Hydan joined the chat room.
+[11:31am] nlew joined the chat room.
+[11:31am] ghadishayban: TEttinger: ain't no fix if it doesn't go through the process and get applied
+[11:32am] justin_smith: blur3d: would you want multiple sensors of the same kind? if not it seems it would be convenient to put the sensors in a hash map with kind as the key
+[11:32am] penglingbo joined the chat room.
+[11:32am] TEttinger left the chat room. (Quit: Leaving)
+[11:32am] johann left the chat room.
+[11:32am] ghadishayban: A periodic reminder to vote for JIRA tickets: http://jafingerhut.github.io/clj-ticket-status/CLJ-top-tickets-by-weighted-vote.html
+[11:32am] blur3d: justin_smith: yeah, I was hoping to support multiple sensors of the same kind. And the lablel would be how people can tell them apart
+[11:32am] justin_smith: blur3d: also, you can use 1 as a label, instead of :1, I think that would make things easier
+[11:33am] dbasch left the chat room. (Ping timeout: 240 seconds)
+[11:33am] TEttinger joined the chat room.
+[11:33am] blur3d: yeah I might just use numbers, but then I can’t (:1 labels)
+[11:33am] justin_smith: blur3d: how about something like {{:kind "altimeter" :label "0"} {:updated-at ... :value ...}}
+[11:34am] justin_smith: blur3d: but you can use get
+[11:34am] blur3d: but I need to use get anyway, incase a label is empty
+[11:34am] justin_smith: since you need both kind and label (only the combination will ever be unique) it seems like they need to be combined to make a proper unique key
+[11:34am] blur3d: can you use that kind of destructuring in an update-in/assoc-in?
+[11:35am] blur3d: yeah, that is what I am after… rather then double nested hashmaps
+[11:35am] justin_smith: ,(update-in {[0 1] 0} [[0 1]] inc)
+[11:35am] clojurebot: {[0 1] 1}
+[11:35am] tbatchelli is now known as tbatchelli|away.
+[11:35am] blur3d: a way to use the kind + id as a index when updating
+[11:35am] justin_smith: with only two pieces of data, a two element vector may be better than a small map, in terms of readability
+[11:35am] nlew left the chat room. (Ping timeout: 264 seconds)
+[11:36am] blur3d: index/unique key
+[11:36am] justin_smith: ,(update-in {{:a 1} 0} [{:a 1}] inc) but of course a hashmap works too
+[11:36am] clojurebot: {{:a 1} 1}
+[11:37am] blur3d: well, I plan to support a timeseries of values which get conj to the :values [] key
+[11:37am] yedi left the chat room. (Remote host closed the connection)
+[11:37am] justin_smith: ok, I think that's outside the current question, but totally doable of course
+[11:37am] blur3d: I think will work fine
+[11:38am] rpaulo joined the chat room.
+[11:38am] justin_smith: so like [{:time ... :value ...} ...] as the values in the map
+[11:38am] yedi joined the chat room.
+[11:38am] blur3d: yeah, I haven’t worked out how I plan to graph the data yet…. even just a vector should be ok [time value]
+[11:39am] lw left the chat room. (Quit: s)
+[11:39am] pml joined the chat room.
+[11:39am] dbasch joined the chat room.
+[11:40am] pml left the chat room. (Client Quit)
+[11:40am] blur3d: I like http://code.shutterstock.com/rickshaw/, but its support for timeseries seems limited to a constant update interval - and the data is updated during user defined events
+[11:40am] pml joined the chat room.
+[11:40am] pml is now known as pmlarocque.
+[11:41am] Shiro-Ichida joined the chat room.
+[11:41am] justin_smith: blur3d: there was this algorithmic music composition tool called cecilia, that is kind of defunct now but it had great tools for manipulating data in graph form (like you could click buttons to make each data point random walk from the current value, or to shrink or expand by some factor in the x or y range)
+[11:42am] jimduey left the chat room. (Quit: jimduey)
+[11:42am] kristof left the chat room. (Ping timeout: 256 seconds)
+[11:42am] justin_smith: this is suprisingly rare, as graphing is usually seen as read-only and a way to display existing data, not a way to interactively create an interesting dataset
+[11:42am] arohner joined the chat room.
+[11:43am] AimHere left the chat room. (Ping timeout: 245 seconds)
+[11:43am] blur3d: sounds interesting
+[11:44am] justin_smith: yeah, even the ability to click and drag data points is rare (and probably scary to many statisticians)
+[11:45am] ddellacosta left the chat room. (Remote host closed the connection)
+[11:46am] elben joined the chat room.
+[11:46am] blur3d: what I am working on is a real-time dashboard for Arduinos. Basically, you include a library in you arduino code, add a couple lines (1/2 per sensor/input) and then it will send data via serial/tcp/bluetooth to a web app (likely node-webkit) and automatically create a dashboard that updates
+[11:46am] yogthos is now known as yogthos|away.
+[11:47am] adamhill joined the chat room.
+[11:47am] blur3d: justin_smith: The destructing hash keys work great - thanks
+[11:47am] elben left the chat room. (Client Quit)
+[11:50am] bhenry left the chat room. (Remote host closed the connection)
+[11:51am] ananthakumaran joined the chat room.
+[11:51am] pmlarocq_ joined the chat room.
+[11:51am] notmatt_ left the chat room. (Remote host closed the connection)
+[11:51am] john2x_ left the chat room. (Read error: Connection reset by peer)
+[11:51am] pmlarocque left the chat room. (Ping timeout: 245 seconds)
+[11:52am] zaphar_ps joined the chat room.
+[11:52am] zaphar_ps left the chat room. (Changing host)
+[11:52am] zaphar_ps joined the chat room.
+[11:52am] yuhan joined the chat room.
+[11:52am] john2x joined the chat room.
+[11:52am] samrat joined the chat room.
+[11:52am] schaefer joined the chat room.
+[11:52am] _99hats joined the chat room.
+[11:53am] duck1123 joined the chat room.
+[11:53am] dbasch left the chat room. (Ping timeout: 240 seconds)
+[11:54am] Guest72608 joined the chat room.
+[11:56am] duck1123 left the chat room. (Read error: Connection reset by peer)
+[11:57am] zaphar_ps left the chat room. (Ping timeout: 240 seconds)
+[11:57am] IamDrowsy left the chat room.
+[11:57am] trevorlandau joined the chat room.
+[11:58am] mthvedt joined the chat room.
+[11:59am] Guest72608 left the chat room. (Ping timeout: 240 seconds)
+[12:01pm] yedi left the chat room. (Remote host closed the connection)
+[12:03pm] sduckett joined the chat room.
+[12:03pm] justin_smith: blur3d: cool, regarding the node-webkit webapp, you could go all tiny and run that on a beagle-bone
+[12:04pm] justin_smith: beagle bone ships with a node web server that allows js access to all its sensor ports
+[12:04pm] scottj left the chat room. (Quit: leaving)
+[12:05pm] echo-area joined the chat room.
+[12:05pm] i_s joined the chat room.
+[12:05pm] blur3d: yeah, I was hoping to support raspberry pi’s and any low powered ARM devices that support node webkit - and potentially, you only need data collection ‘server’, so other devices would only need a web browser and javascript
+[12:05pm] justin_smith: http://www.element14.com/community/community/designcenter/single-board-computers/next-gen_beaglebone?CMP=KNC-USA-DC-SBC-BBB-BRAND
+[12:06pm] blur3d: I’ve got the arduino code library written. It sends data via extending the Firmata library/protocol
+[12:06pm] justin_smith: cool
+[12:06pm] supersym joined the chat room.
+[12:06pm] blur3d: and I’ve prototyped several ways to read the data… over serial/tcp
+[12:07pm] supersym left the chat room. (Client Quit)
+[12:07pm] teslanick joined the chat room.
+[12:07pm] rbanffy left the chat room. (Ping timeout: 240 seconds)
+[12:07pm] mmullis joined the chat room.
+[12:07pm] supersym joined the chat room.
+[12:08pm] blur3d: I was hoping to just use browser support for serial/tcp, but it is too early and chromium doesn’t support it enough yet
+[12:08pm] yogthos|away is now known as yogthos.
+[12:08pm] blur3d: so that led me to looking at node-webkit, and running a light weight node server (hopefully in clojurescript) that can read the data and send it to clients via websockets
+[12:09pm] nkozo: blur3d: maybe is better to send the data using Data RTC
+[12:09pm] jimmybot joined the chat room.
+[12:09pm] mmullis left the chat room. (Remote host closed the connection)
+[12:09pm] i_s left the chat room. (Ping timeout: 240 seconds)
+[12:09pm] anildigital left the chat room. (Changing host)
+[12:09pm] anildigital joined the chat room.
+[12:09pm] mmullis joined the chat room.
+[12:10pm] justin_smith: blur3d: so arduino->serial->compuer->www->client ?
+[12:10pm] myguidingstar joined the chat room.
+[12:10pm] pmlarocq_ left the chat room.
+[12:10pm] yedi joined the chat room.
+[12:10pm] blur3d: I haven’t really looked into Data RTC… I’ve tested websockets tho
+[12:11pm] blur3d: yeah, that looks right
+[12:11pm] nkozo: blur3d: Data RTC is like UDP, maybe is an advantage over websockets for your use case
+[12:11pm] justin_smith: you could skip the computer and still have the hardware inputs (and still be running node as your server) if you used a beagle bone
+[12:12pm] justin_smith: beagle->www->client
+[12:12pm] jimduey joined the chat room.
+[12:12pm] ddellacosta joined the chat room.
+[12:12pm] blur3d: I’ll look into it… I have it all working just using clojure… but i’d rather package it as an multi-platform app - so whatever node-webkit can support, it likely what I have to work with
+[12:12pm] supersym left the chat room. (Client Quit)
+[12:13pm] blur3d: I need to get myself a beagle
+[12:13pm] justin_smith: well with the profile described above, it would just be a standard node web page
+[12:13pm] bryanmaass left the chat room. (Ping timeout: 255 seconds)
+[12:13pm] ambrosebs left the chat room. (Remote host closed the connection)
+[12:13pm] blur3d: yeah… node webpage should work.. but I don’t know node webkit that well
+[12:14pm] blur3d: the toolchain seems very broken
+[12:14pm] justin_smith: well the beagle comes with the node webserver running and connected to the hardware ports by default
+[12:14pm] blur3d: and using node_modules with C extensions (like for serial), has been giving me problems
+[12:14pm] justin_smith: but also has enough power that you should be able to pull off running jvm clojure
+[12:15pm] technomancy: the beagle bone is super pokey at jvming
+[12:15pm] justin_smith: one of the first things I tried with mine was sshing into the box, connecting an led to some hardware ports, and using bash to turn the led on and off
+[12:15pm] blur3d: I dont think I need the jvm - except for development
+[12:15pm] justin_smith: technomancy: OK, that sucks
+[12:15pm] mdedetrich joined the chat room.
+[12:16pm] justin_smith: yeah I have heard bad things about the jvm on arm actually
+[12:16pm] technomancy: I had better luck with racket
+[12:16pm] justin_smith: ooh, that is an interesting option, yeah
+[12:16pm] blur3d: I’ve run simple clojure apps on the raspberry pi
+[12:16pm] blur3d: worked fine
+[12:16pm] technomancy: they just added badass arm jit in racket
+[12:17pm] yogthos is now known as yogthos|away.
+[12:17pm] adsisco_ left the chat room. (Quit: Connection closed for inactivity)
+[12:18pm] ambrosebs joined the chat room.
+[12:18pm] blur3d: hmm, It’s interesting that with the beagle I wouldn’t need any arduino library… so somehow the user would need to specify/read sensor values
+[12:19pm] blur3d: in any case, I plan to make the dashboard as generic as possible.. and you just send it data and it builds itself automatically as data comes in
+[12:19pm] _JokerDoom joined the chat room.
+[12:19pm] justin_smith: blur3d: with a beagle it runs linux and you can just cat files under /proc to get port values or set them
+[12:20pm] justin_smith: cat out to proc/foo/bar to send a voltage, cat from proc/foo/bar to read it
+[12:20pm] blur3d: yep. but I am writing the dashboard to just be a dumb terminal
+[12:20pm] eraserhd joined the chat room.
+[12:20pm] daito joined the chat room.
+[12:20pm] justin_smith: OK
+[12:20pm] blur3d: so somewhere you would need to tell it what to display
+[12:20pm] blur3d: http://dashingdemo.herokuapp.com/sample
+[12:20pm] rpaulo left the chat room. (Quit: rpaulo)
+[12:20pm] frkout joined the chat room.
+[12:20pm] r0ok joined the chat room.
+[12:20pm] blur3d: I’d like something along the lines of that
+[12:21pm] justin_smith: I hope you are considering using om
+[12:21pm] blur3d: justin_smith: but, I don’t see why the dashboard can’t be forked or extended for specific beagle use
+[12:21pm] justin_smith: sure
+[12:21pm] JokerDoom left the chat room. (Ping timeout: 250 seconds)
+[12:22pm] blur3d: yeah, plan to use React + om… that is what I needed the data transformation for
+[12:22pm] daito left the chat room. (Read error: Connection reset by peer)
+[12:22pm] justin_smith: also you should be able to pull in dashboard directly into beagle, since on default bootup it already has node serving web pages and able to read from / write to all the hardware ports via js
+[12:22pm] duck1123 joined the chat room.
+[12:22pm] n_b left the chat room. (Ping timeout: 240 seconds)
+[12:22pm] blur3d: this is actually the inspiration for the project - Bret Victor, Seeing Spaces http://vimeo.com/97903574
+[12:23pm] cespare: I just found that if one of my test files has a syntax error, lein test ignores it completely.
+[12:23pm] daito joined the chat room.
+[12:23pm] blur3d: nice, that could be cool
+[12:23pm] nlew joined the chat room.
+[12:23pm] cespare: is there a way to make it not do that?
+[12:23pm] cespare: because, y'know, that's terrible
+[12:23pm] justin_smith: blur3d: awesome demos in that vid
+[12:25pm] blur3d: Yeah, Ive got a spare core (an arduino with built in wifi), and I’ve been using it to test tcp… and it is really cool to see it all working
+[12:25pm] myguidingstar: Hi all, I'm considering a workflow for project using cljx+clojurescript.test
+[12:25pm] blur3d: being able to see the internals is magical
+[12:26pm] blur3d: sparkcore” http://spark.io
+[12:26pm] mmullis left the chat room. (Ping timeout: 240 seconds)
+[12:26pm] n_b joined the chat room.
+[12:26pm] ambrosebs left the chat room. (Remote host closed the connection)
+[12:26pm] blur3d: The arduino API is very simple
+[12:26pm] blur3d: #include "TestDrive.h"
+[12:26pm] blur3d: TestDrive.begin();
+[12:26pm] blur3d: TestDrive.setLabel(2, "Main Bedroom");
+[12:26pm] blur3d: TestDrive.sendTemperature(2, temp);
+[12:27pm] myguidingstar: I think it would be too slow to run auto cljx build + cljs build + running tests
+[12:27pm] l3dx left the chat room. (Quit: Connection closed for inactivity)
+[12:27pm] myguidingstar: but instance feedback is essential to me
+[12:27pm] n0n3such left the chat room. (Quit: Leaving...)
+[12:27pm] myguidingstar: any suggestion?
+[12:29pm] blur3d: nkozo justin_smith technomancy: thanks for the discussion. I’ve got to head out.
+[12:29pm] fergalbyrne joined the chat room.
+[12:29pm] blur3d: justin_smith: I’ll try and let you know what I have something working enough to push to github
+[12:29pm] blur3d: might be a few weeks
+[12:29pm] zaphar_ps joined the chat room.
+[12:29pm] zaphar_ps left the chat room. (Changing host)
+[12:29pm] zaphar_ps joined the chat room.
+[12:29pm] trevorlandau left the chat room. (Remote host closed the connection)
+[12:30pm] ez121sl joined the chat room.
+[12:30pm] frkout_ joined the chat room.
+[12:30pm] blur3d: I’ve started to play with om, and I really like it, but I need to learn a fair bit
+[12:31pm] justin_smith: blur3d: awesome, do keep me updated

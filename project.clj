@@ -27,7 +27,9 @@
                  [om "0.6.4"]
 
                  [clj-firmata "1.1.1-SNAPSHOT"]
-                 [clj-time "0.7.0"]]
+                 [clj-time "0.7.0"]
+
+                 [aleph "0.3.2"]]
 
   :plugins [[lein-cljsbuild "1.0.3"]]
 

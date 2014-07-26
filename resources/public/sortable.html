@@ -1,0 +1,179 @@
+<!doctype html>
+<head>
+	<meta charset="utf-8">
+	<title>TestDrive</title>
+
+    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+
+	<style>
+        body {
+            background-color:#101214;
+            margin:25px;
+        }
+		ul.widgets {
+			margin: auto;
+			padding: 0;
+			width: 100%;
+			-webkit-touch-callout: none;
+			-webkit-user-select: none;
+			-khtml-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			user-select: none;
+		}
+		ul.widgets.grid {
+			overflow: hidden;
+		}
+		ul.widgets li {
+			list-style: none;
+			color: #1C94C4;
+			margin: 5px;
+			padding: 5px;
+			height: 22px;
+		}
+		ul.widgets.grid li {
+			float: left;
+            width: 200px;
+			height: 220px;
+		}
+		ul.widgets li.highlight {
+			background: #FEE25F;
+		}
+		li.widgets-placeholder {
+			border: 1px dashed #fff;
+		}
+
+        li.widget {
+            margin:0 0 12px 12px;
+        }
+
+        li.widget .header {
+            height:32px;
+            background-color:#272727;
+            color:#75787A;
+            padding:6px 4px 6px 12px;
+        }
+
+        li.widget .header .title {
+            margin-left:6px;
+        }
+
+        li.widget .content {
+            height:145px;
+            background-color:#2A2A2A;
+            padding:8px 16px 8px 20px;
+        }
+
+        li.widget .content strong {
+            color:#E1E2E2;
+            font-size:58px;
+            display:block;
+            font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+            font-weight: normal;
+            text-shadow: 0 1px 1px #666;
+        }
+
+        li.widget .content small {
+            color:#868885;
+            font-size:14px;
+            text-shadow: 0 1px 1px #333;
+        }
+
+        li.widget .footer {
+            height:32px;
+            background-color:#1F1F1F;
+            color:#5F5F5F;
+            padding:6px 4px 6px 12px;
+            text-shadow: 0 1px 1px #333;
+        }
+
+        li.widget .footer.updated {
+            color:#E5E5E5;
+            text-shadow: none;
+        }
+	</style>
+</head>
+
+<body>
+    <ul class="widgets grid">
+         <li class="widget">
+             <div class="header">
+                 <span class="glyphicon glyphicon-cloud"></span>
+                 <span class="title">HUMIDITY</span>
+             </div>
+             <div class="content">
+                 <strong>65</strong>
+                 <small>PERCENT</small>
+             </div>
+             <div class="footer">updated 1s ago</div>
+         </li>
+
+         <li class="widget">
+             <div class="header">
+                 <span class="glyphicon glyphicon-fire"></span>
+                 <span class="title">TEMPERATURE</span>
+             </div>
+             <div class="content">
+                 <strong>37</strong>
+                 <small>DEGREES (C)</small>
+             </div>
+             <div class="footer">updated 1s ago</div>
+         </li>
+
+         <li class="widget">
+             <div class="header">
+                 <span class="glyphicon glyphicon-fire"></span>
+                 <span class="title">PRESSURE</span>
+             </div>
+             <div class="content">
+                 <strong>1120</strong>
+                 <small>HECTOPASCALS (hPa)</small>
+             </div>
+             <div class="footer">updated 10s ago</div>
+         </li>
+
+         <li class="widget">
+             <div class="header">
+                 <span class="glyphicon glyphicon-dashboard"></span>
+                 <span class="title">VOLTAGE</span>
+             </div>
+             <div class="content">
+                 <strong>5.6</strong>
+                 <small>VOLTS (V)</small>
+             </div>
+             <div class="footer">updated 10s ago</div>
+         </li>
+
+         <li class="widget">
+             <div class="header">
+                 <span class="glyphicon glyphicon-dashboard"></span>
+                 <span class="title">CURRENT</span>
+             </div>
+             <div class="content">
+                 <strong>200</strong>
+                 <small>MILLIAMPS (mA)</small>
+             </div>
+             <div class="footer">updated 10s ago</div>
+         </li>
+
+         <li class="widget">
+             <div class="header">
+                 <span class="glyphicon glyphicon-dashboard"></span>
+                 <span class="title">ORIENTATION</span>
+             </div>
+             <div class="content">
+                 <strong>360</strong>
+             </div>
+             <div class="footer updated">updated 0s ago</div>
+         </li>
+
+    </ul>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+	<script src="jquery.sortable.js"></script>
+	<script>
+		$(function() {
+			$('.widgets').sortable();
+		});
+	</script>
+</body>
+</html>

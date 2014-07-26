@@ -1,0 +1,138 @@
+<html>
+<head>
+  <style>
+* {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+body {
+  background: #E5E5E5;
+}
+.grid-container {
+  position: absolute;
+  top: 10px;
+  left: 0;
+  right: 10px;
+  bottom: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.grid {
+  position: relative;
+  height: 100%;
+  list-style: none;
+  /* Will be modified by the grid jquery lib, depending on the items */
+  /* -webkit-transition: width 0.2s; */
+}
+  .grid li {
+    position: absolute;
+    font-weight: bold;
+    line-height: 4em;
+    text-align: center;
+    cursor: pointer;
+/*     -webkit-transition: top 0.2s,
+                        left 0.2s,
+                        width 0.2s,
+                        height 0.2s,
+                        font-size 0.2s,
+                        line-height 0.2s; */
+  }
+  .grid li .inner {
+    position: absolute;
+    background: #fff;
+    border: 1px solid #bbb;
+    top: 0;
+    bottom: 10px;
+    left: 10px;
+    right: 0;
+    -webkit-transition: background 3s;
+  }
+/*   .grid li.changed .inner {
+    background: #ffff66;
+    -webkit-transition: none;
+  } */
+  .grid li.ui-draggable-dragging {
+    -webkit-transition: none;
+  }
+  .grid li.position-highlight {
+    -webkit-transition: none;
+  }
+    .grid li.position-highlight .inner {
+      border: none;
+      background: #ccc;
+    }
+  </style>
+</head>
+<body>
+  <div class="grid-container">
+    <ul id="grid" class="grid">
+      <li class="position-highlight">
+        <div class="inner"></div>
+      </li>
+      <li data-w="1" data-h="1">
+        <div class="inner">0</div>
+      </li>
+      <li data-w="1" data-h="1">
+        <div class="inner">1</div>
+      </li>
+      <li data-w="1" data-h="1">
+        <div class="inner">2</div>
+      </li>
+      <li data-w="1" data-h="1">
+        <div class="inner">3</div>
+      </li>
+    </ul>
+  </div>
+</body>
+
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+    <script src="lib/grid-list/spec/fixtures.js"></script>
+    <script src="lib/grid-list/src/gridList.js"></script>
+    <script src="lib/grid-list/src/jquery.gridList.js"></script>
+  <script>
+
+  var buildGridElements = function($gridContainer, items) {
+  var item, i;
+  for (i = 0; i < items.length; i++) {
+    item = items[i];
+    $item = $(
+      '<li>' +
+        '<div class="inner">' +
+          i +
+        '</div>' +
+      '</li>'
+    );
+    $item.attr({
+      'data-w': item.w,
+      'data-h': item.h,
+      'data-x': item.x,
+      'data-y': item.y
+    });
+    $gridContainer.append($item);
+  }
+  };
+
+  //var currentGridSize = 5;
+  //var updateGridSize = function() {
+  //  $('#grid').gridList('resize', currentGridSize);
+  //};
+
+  $(function() {
+  //buildGridElements($('#grid'), fixtures.GRID2.rows3);
+
+  $('#grid').gridList();
+  //$('#grid li .resize').click(function(e) {
+  //  e.preventDefault();
+  //  var itemElement = $(e.currentTarget).closest('li'),
+  //      itemSize = $(e.currentTarget).data('size');
+  //  $('#grid').gridList('resizeItem', itemElement, itemSize);
+  //});
+  });
+  //$(window).resize(function() {
+  //  $('#grid').gridList('resize', currentGridSize);
+  //})
+  </script>
+
+</html>
