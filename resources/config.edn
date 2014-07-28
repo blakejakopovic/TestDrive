@@ -1,11 +1,6 @@
-{:clj { :log-level :debug
+{:clj { :log-level :info
 
-        :port 4567
-
-        :board-port "tty.usbmodemfd1231"
-        :board-baud 57600
-        :board-buffer-size 1023
-
-        :board-simulation false}
+        ;; :server-port 4567
+      }
 
  :cljs {}}

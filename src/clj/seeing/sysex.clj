@@ -2,26 +2,28 @@
   (:require [firmata.core :refer [read-sysex-event consume-sysex read-two-byte-data]]))
 
 (def ^{:private true} SYSEX_TYPE_EVENT           0x01 )
-(def ^{:private true} SYSEX_TYPE_REGISTER        0x02 )
+(def ^{:private true} SYSEX_TYPE_REGISTER        0x02 ) ;; LABEL
+(def ^{:private true} SYSEX_TYPE_LOG             0x03 ) ;; NEW
 
 (def ^{:private true} KIND_ACCELEROMETER         0x01 ) ;;;
 (def ^{:private true} KIND_MAGNETIC_FIELD        0x02 ) ;;;
-(def ^{:private true} KIND_ORIENTATION           0x03 ) ;
+(def ^{:private true} KIND_ORIENTATION           0x03 )
 (def ^{:private true} KIND_GYROSCOPE             0x04 ) ;;;
 (def ^{:private true} KIND_LIGHT                 0x05 )
 (def ^{:private true} KIND_PRESSURE              0x06 )
 ;; note that 7 is ommitted on purpose
 (def ^{:private true} KIND_PROXIMITY             0x08 )
-(def ^{:private true} KIND_GRAVITY               0x09 )
-(def ^{:private true} KIND_LINEAR_ACCELERATION   0x10 ) ;;;
-(def ^{:private true} KIND_ROTATION_VECTOR       0x11 ) ;;;
-(def ^{:private true} KIND_RELATIVE_HUMIDITY     0x12 )
-(def ^{:private true} KIND_AMBIENT_TEMPERATURE   0x13 )
+;; (def ^{:private true} KIND_GRAVITY               0x09 ) ;; REMOVE
+;; (def ^{:private true} KIND_LINEAR_ACCELERATION   0x10 ) ;;; REMOVE
+;; (def ^{:private true} KIND_ROTATION_VECTOR       0x11 ) ;;; REMOVE
+(def ^{:private true} KIND_RELATIVE_HUMIDITY     0x12 ) ;; SHORTEN
+(def ^{:private true} KIND_AMBIENT_TEMPERATURE   0x13 ) ;; SHORTEN
 ;; note that 14 is ommitted on purpose
 (def ^{:private true} KIND_VOLTAGE               0x15 )
 (def ^{:private true} KIND_CURRENT               0x16 )
 (def ^{:private true} KIND_COLOR                 0x17 ) ;;;
 (def ^{:private true} KIND_SWITCH                0x18 )
+;; KIND_ROTATION (degrees)
 
 (def friendly-kinds
   {KIND_ACCELEROMETER        :acceleration
@@ -31,12 +33,19 @@
    KIND_LIGHT                :light
    KIND_PRESSURE             :pressure
    KIND_PROXIMITY            :distance
-   KIND_RELATIVE_HUMIDITY    :humidity
-   KIND_AMBIENT_TEMPERATURE  :temperature
+   KIND_RELATIVE_HUMIDITY    :humidity      ;; SHORTEN
+   KIND_AMBIENT_TEMPERATURE  :temperature   ;; SHORTEN
    KIND_VOLTAGE              :voltage
    KIND_CURRENT              :current
    KIND_COLOR                :color
    KIND_SWITCH               :switch})
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; HELPERS
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn bytes-to-float [coll]
   (let [byte-coll (byte-array coll)]
@@ -55,13 +64,19 @@
         (into [] (map bytes-to-float coll)))
       (bytes-to-float data)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; SYSEX EXTENSIONS
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defmethod read-sysex-event SYSEX_TYPE_EVENT
   [in]
-    (let [kind      (.read in)
-          kind-sym  (get friendly-kinds kind :unknown)
-          id        (.read in)
-          value     (value-for kind (read-two-byte-data in))
-          now (new java.util.Date)]
+  (let [kind      (.read in)
+        kind-sym  (get friendly-kinds kind :unknown)
+        id        (.read in)
+        value     (value-for kind (read-two-byte-data in))
+        now (new java.util.Date)]
     {:type :event
      :kind kind-sym
      :id id
@@ -70,8 +85,14 @@
 
 (defmethod read-sysex-event SYSEX_TYPE_REGISTER
   [in]
-    (let [id   (.read in)
-          value (consume-sysex in "" #(str %1 (char %2)))]
+  (let [id   (.read in)
+        value (consume-sysex in "" #(str %1 (char %2)))]
     {:type :label
      :id id
+     :value value}))
+
+(defmethod read-sysex-event SYSEX_TYPE_LOG
+  [in]
+  (let [value (consume-sysex in "" #(str %1 (char %2)))]
+    {:type :log
      :value value}))

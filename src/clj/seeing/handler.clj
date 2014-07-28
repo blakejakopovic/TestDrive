@@ -4,15 +4,15 @@
   (:require [ring.middleware.reload :as reload]
             [compojure.route :as route]
             [compojure.handler :as handler]
+            [ring.util.response :refer [file-response]]
             [ring.middleware.cors :as cors]
             [ring.middleware.anti-forgery :refer [wrap-anti-forgery]]
-            [seeing.middleware :refer [wrap-timbre]]
-            [seeing.routes.index :as index]
             [seeing.routes.events :as events]
             [seeing.config :refer [config]]))
 
 (defroutes app-routes
-  index/routes
+  (GET "/" [] (file-response "index.html" {:root "resources/public"}))
+
   events/routes
 
   (route/resources "/")
@@ -23,11 +23,12 @@
 
 
 (def app (-> (handler/site app-routes)
-             (wrap-timbre {})
              reload/wrap-reload
              (cors/wrap-cors :access-control-allow-origin #".+"
-                        :access-control-allow-methods [:get])))
+                             :access-control-allow-methods [:get])))
 
-(defn start-server []
-  (let [port (or (:port config) 4567)]
+(defn start-server
+  "Start ring server"
+  []
+  (let [port (or (:server-port config) 4567)]
     (run-server app {:port port :join? false})))

@@ -1,144 +1,187 @@
 (ns seeing.core
   (:require
-    [cljs.core.async :refer [chan <! put! timeout sliding-buffer]]
+    [cljs.core.async :refer [chan <! >! put! take! close! timeout sliding-buffer]]
     [om.core :as om :include-macros true]
     [om.dom :as dom :include-macros true]
-    [cljs.reader :as reader]
-    [taoensso.sente :as sente :refer (cb-success?)]
-    [cljs.core.match])
+    [chord.client :refer [ws-ch]]
+    [clojure.string :refer [upper-case]]
+    [cljs-time.core :refer [now]])
   (:require-macros
-    [cljs.core.async.macros :refer [go go-loop]]
-    [cljs.core.match.macros :refer (match)]))
+    [cljs.core.async.macros :refer [go go-loop]]))
 
 (enable-console-print!)
 
+(def simulation
+  "Enable simulation mode"
+  false)
+
 (def app-container-id "seeing-app")
 
-(def events (chan))
+(def ws-url "ws://localhost:4567/events")
+(def event-ch (chan 10))
 
 (def app-state
+  "The initial application state"
   (atom {:sensors {}
-         :labels {}}))
+         :labels  {}}))
 
-;; (def app-state
-;;   (atom {:sensors
-;;           {{:kind :temperature :label-id 1} [[21.0    #inst "2014-07-26T03:46:29.587-00:00"]]
-;;            {:kind :temperature :label-id 2} [[32.0    #inst "2014-07-26T03:46:29.587-00:00"]]
-;;            {:kind :humidity    :label-id 3} [[62.0    #inst "2014-07-26T03:46:29.587-00:00"]]
-;;            {:kind :pressure    :label-id 2} [[1100.0  #inst "2014-07-26T03:46:29.587-00:00"]]
-;;            {:kind :altitude    :label-id 1} [[120.0   #inst "2014-07-26T03:46:29.587-00:00"]]}
-;;          :labels {1 "Bedroom"
-;;                   2 "kitchen"}}))
 
-(defn label-for [label-id]
+;; UI HELPERS
+
+(defn label-for
+  "Fetches a defined label from the app-state, or uses a generic one"
+  [label-id]
   (if-let [label (get (:labels @app-state) label-id)]
-    (clojure.string/upper-case label)
-    (str "ID: " label-id)))
+    (upper-case label)
+    (str "id: " label-id)))
 
 (def unit-for
+  "A map containing user facing strings for unit types"
   {:temperature "celsius (C)"
    :humidity    "percent (%)"
    :pressure    "hectopascals (hPa)"
-   :altitude    "meters (m)"})
+   :altitude    "meters (m)"
+   :voltage     "volts (V)"})
+
+;; EVENT PROCESING
+
+(defn process-new-event
+  "Process a new sensor event by adding it's value to the app-state"
+  [cursor {:keys [kind id value timestamp] :as payload}]
+  (om/transact! cursor
+                [:sensors {:kind kind :label-id id}]
+                #(vec (conj % [value timestamp]))))
+
+(defn process-new-label
+  "Process a label by adding it to the app-state"
+  [cursor {:keys [id value] :as payload}]
+  (om/update! cursor [:labels id] value))
+
+
+;; OM
 
 (defn widget-header [cursor owner]
-  (let [title (-> cursor key :kind name clojure.string/upper-case)]
+  (let [title (-> cursor key :kind name upper-case)]
     (om/component
      (dom/div #js {:className "header"}
               (dom/span #js {:className "glyphicon glyphicon-dashboard"})
               (dom/span #js {:className "title"} title)))))
 
-(defn widget-content [cursor owner]
+(defn text-widget-content [cursor owner]
   (let [value (-> cursor val last first)
         unit  (-> cursor key :kind unit-for)
         label (-> cursor key :label-id label-for)]
     (om/component
      (dom/div #js {:className "content"}
               (dom/strong nil value)
-              (dom/small nil unit)
+              (dom/small #js {:className "units"} unit)
               (dom/small nil label)))))
 
 (defn widget-footer [cursor owner]
-  (let [last-updated nil #_(-> cursor val last last)]
-    (om/component
-     (dom/div #js {:className "footer"} "recently updated"))))
+  (om/component
+   (dom/div #js {:className "footer"} "just updated")))
 
-(defn widget [cursor owner]
+(defn text-widget [cursor owner]
   (let [kind-class (-> cursor key :kind name)]
     (om/component
      (dom/li #js {:className (str "widget " kind-class)}
              (om/build widget-header cursor)
-             (om/build widget-content cursor)
+             (om/build text-widget-content cursor)
              (om/build widget-footer cursor)))))
-
-;; (defn widget-list [cursor owner]
-;;   (om/component
-;;    (dom/ul #js {:className "widgets grid"}
-;;            (into-array (map #(om/build widget % {:react-key (key %)}) (:sensors cursor))))))
-
-
-(defn process-new-event [cursor payload]
-  (let [kind (:kind payload)
-        id (:id payload)
-        value (:value payload)
-        timestamp (:timestamp payload)]
-    (om/transact! cursor [:sensors {:kind kind :label-id id}] #(conj [value timestamp] %))))
-
-(defn process-new-label [cursor payload]
-  (let [id (-> payload :id)
-        label (-> payload :value)]
-    (om/update! cursor [:labels id] label)))
 
 (defn widget-list [cursor owner]
   (reify
     om/IWillMount
       (will-mount
        [_]
-       (go-loop []
-        (if-let [payload (<! events)]
+       (go (while true
+        (if-let [payload (<! event-ch)]
           (let [type (:type payload)]
             (condp = type
               :label (process-new-label cursor payload)
               :event (process-new-event cursor payload)
-              nil)))
-        (recur)))
+              nil))))))
 
     om/IRender
       (render
        [_]
        (dom/ul #js {:className "widgets grid"}
-               (into-array (map #(om/build widget % {:react-key (key %)}) (:sensors cursor)))))))
-
-(om/root widget-list app-state
-  {:target (. js/document (getElementById app-container-id))})
+               (into-array (map #(om/build text-widget % {:react-key (key %)}) (:sensors cursor)))))))
 
 
+;; SIMUATION
+
+;; EVENT MESSAGE
 ;; {:type :event, :kind :temperature, :id 2, :value 25.6, :timestamp #inst "2014-07-26T05:13:29.051-00:00"}
+
+;; LABEL MESSAGE
 ;; {:type :label, :id 2, :value Main Bedroom}
 
-(defn event-handler-ext [[kind payload]]
-  (put! events payload))
+(defn simulate-event
+  "Simulate a real semi-random event"
+  []
+  (rand-nth
+   [{:type :event :kind :temperature :id 1 :value (+ 19.0 (rand-int 8)) :timestamp (now)}
+    {:type :event :kind :pressure :id 2 :value (+ 995 (rand-int 11)) :timestamp (now)}
+    {:type :event :kind :humidity :id 3 :value (+ 58.0 (rand-int 8)) :timestamp (now)}
+    {:type :event :kind :altitude :id 1 :value (+ 15.0 (rand-int 6)) :timestamp (now)}
+    {:type :event :kind :voltage :id 2 :value (+ 3.0 (rand-int 2)) :timestamp (now)}
+    {:type :label :id 1 :value "Main Bedroom"}
+    {:type :label :id 2 :value "Kitchen"}]))
 
-(let [{:keys [event ch-recv send-fn state]}
-      (sente/make-channel-socket! "/events" {:type :auto})]
-  (def event        event)
-  (def ch-events    ch-recv)
-  (def events-send! send-fn)
-  (def events-state state))
+(defn simulate-events
+  "Start event simulation"
+  []
+  (go (while true
+        (>! event-ch (simulate-event))
+        (<! (timeout 200)))))
 
-(defn- event-handler [[id data :as ev] _]
-  (match [id data]
-    [:chsk/recv payload]
-         (event-handler-ext payload)
 
-    [:chsk/state {:first-open? true}]
-         (println "Channel socket successfully established!")
+;; WEBSOCKETS
 
-    [:chsk/state new-state]
-         (println "Chsk state change: " new-state)
+(defn init-websocket
+  "Websocket setup and handler"
+  []
+  (go
+    (let [{:keys [ws-channel]} (<! (ws-ch ws-url))]
+      (while true
+        (when-some [{:keys [message error]} (<! ws-channel)]
+          (if-not error
+            (>! event-ch message)))))))
 
-    :else
-         (println "Unmatched event: " ev)))
 
-(defonce chsk-router
-  (sente/start-chsk-router-loop! event-handler ch-events))
+;; INIT
+
+(defn init
+  "DOM ready initialisation of app"
+  []
+  (om/root widget-list app-state
+    {:target (. js/document (getElementById app-container-id))})
+  (if-not simulation
+    (init-websocket)
+    (simulate-events)))
+
+;; initialize the HTML page in unobtrusive way
+(set! (.-onload js/window) init)
+
+
+
+
+
+
+;; add types
+;; - rotation 360 (for servos)
+;; - counter (for counting things)
+
+
+;; widget types
+;; - text
+;; - compass (orientation)
+;; - rotation
+;; - rotation-vector
+;; - map
+
+;; examples
+;; - weather station
+;; - tinkering/experimentation
+;; - robots

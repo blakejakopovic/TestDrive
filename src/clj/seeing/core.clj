@@ -6,19 +6,20 @@
             [seeing.board   :as board]))
 
 (defn setup-logger []
-  (timbre/set-level!(or (:log-level config) :debug)))
+  (timbre/set-level!(or (:log-level config) :info)))
+
+(def server-url
+  (let [port (or (:server-port config) 4567)]
+    (str "http://localhost:" port "/")))
 
 (defn -main [& args]
   (setup-logger)
 
-  (info "Server Starting...")
   (handler/start-server)
+  (info "Server Running...")
 
-  (board/handle-board-events)
-  (info "Ready for board events.")
+  (let [port-name (first *command-line-args*)]
+    (board/read-board-events port-name))
+  (info "Reading board events...")
 
-  (board/start-board-events)
-  (info "Processing board events."))
-
-
-;; #<IllegalArgumentException java.lang.IllegalArgumentException: No implementation of method: :take! of protocol: #'clojure.core.async.impl.protocols/ReadPort found for class: nil>
+  (info "Open" server-url "in your browser"))

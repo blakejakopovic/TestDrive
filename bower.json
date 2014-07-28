@@ -1,16 +1,12 @@
 {
   "name": "seeing",
   "version": "0.0.1",
-  "dependencies": {
-    "d3": "latest",
-    "rickshaw": "latest",
-    "grid-list": "latest"
-  },
+  "dependencies": {},
   "private": true,
   "authors": [
     "Blake Jakopovic <blake.jakopovic@gmail.com>"
   ],
-  "description": "Use Arduino Firmata to collect and visualise data from Arduinos",
+  "description": "Use Firmata to collect and visualise data from Arduino micro-controllers",
   "moduleType": [
     "amd",
     "es6",
