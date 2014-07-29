@@ -27,7 +27,7 @@
                  [compojure "1.1.8"]
                  [om "0.6.5"]
 
-                 [clj-firmata "1.1.1-SNAPSHOT"]
+                 [clj-firmata "1.1.2"]
                  [clj-serial "2.0.1"]
 
                  [clj-time "0.8.0"]
