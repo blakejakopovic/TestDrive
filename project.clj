@@ -11,24 +11,24 @@
                  [org.clojure/clojurescript "0.0-2277"]
 
                  [org.clojure/core.async "0.1.303.0-886421-alpha"]
-                 [org.clojure/core.match "0.2.1"]
 
                  [http-kit "2.1.18"]
 
                  [ring "1.3.0"]
                  [ring/ring-devel "1.3.0"]
                  [ring-cors "0.1.4"]
-
-                 [jarohen/chord "0.4.2"]
-
                  [com.taoensso.forks/ring-anti-forgery "0.3.1"]
+
                  [com.taoensso/timbre "3.2.1"]
 
                  [compojure "1.1.8"]
-                 [om "0.6.5"]
 
                  [clj-firmata "1.1.2"]
                  [clj-serial "2.0.1"]
+
+                 [om "0.6.5"]
+
+                 [jarohen/chord "0.4.2"]
 
                  [clj-time "0.8.0"]
                  [com.andrewmcveigh/cljs-time "0.1.6"]]
