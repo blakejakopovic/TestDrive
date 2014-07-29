@@ -11,14 +11,23 @@
 
 (enable-console-print!)
 
+(def debug
+  "Enable console debug logging"
+  false)
+
 (def simulation
   "Enable simulation mode"
   false)
 
 (def app-container-id "seeing-app")
 
-(def ws-url "ws://localhost:4567/events")
+(def port 4567)
+(def ws-url (str "ws://localhost:" port "/events"))
 (def event-ch (chan 10))
+
+(def max-data-points
+  "Set the maximum number of data points per sensor"
+  10)
 
 (def app-state
   "The initial application state"
@@ -43,14 +52,15 @@
    :altitude    "meters (m)"
    :voltage     "volts (V)"})
 
+
 ;; EVENT PROCESING
 
 (defn process-new-event
   "Process a new sensor event by adding it's value to the app-state"
   [cursor {:keys [kind id value timestamp] :as payload}]
   (om/transact! cursor
-                [:sensors {:kind kind :label-id id}]
-                #(vec (conj % [value timestamp]))))
+                [:sensors {:kind kind :label-id id} :values]
+                #(conj (vec (take-last max-data-points %)) [value timestamp])))
 
 (defn process-new-label
   "Process a label by adding it to the app-state"
@@ -68,7 +78,7 @@
               (dom/span #js {:className "title"} title)))))
 
 (defn text-widget-content [cursor owner]
-  (let [value (-> cursor val last first)
+  (let [value (-> cursor val :values last first)
         unit  (-> cursor key :kind unit-for)
         label (-> cursor key :label-id label-for)]
     (om/component
@@ -147,13 +157,15 @@
       (while true
         (when-some [{:keys [message error]} (<! ws-channel)]
           (if-not error
-            (>! event-ch message)))))))
+            (do
+              (>! event-ch message)
+              (if debug (println message)))))))))
 
 
 ;; INIT
 
 (defn init
-  "DOM ready initialisation of app"
+  "DOM ready initialisation of application"
   []
   (om/root widget-list app-state
     {:target (. js/document (getElementById app-container-id))})
@@ -161,7 +173,7 @@
     (init-websocket)
     (simulate-events)))
 
-;; initialize the HTML page in unobtrusive way
+;; Run init on dom ready
 (set! (.-onload js/window) init)
 
 

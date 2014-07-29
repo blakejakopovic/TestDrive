@@ -1,12 +1,15 @@
 {
-  "name": "seeing",
+  "name": "TestDrive",
   "version": "0.0.1",
-  "dependencies": {},
+  "dependencies": {
+    "bootstrap": "latest",
+    "react": "latest"
+  },
   "private": true,
   "authors": [
     "Blake Jakopovic <blake.jakopovic@gmail.com>"
   ],
-  "description": "Use Firmata to collect and visualise data from Arduino micro-controllers",
+  "description": "Real-time dashboard for visualising Arduino and micro-controller inner workings",
   "moduleType": [
     "amd",
     "es6",

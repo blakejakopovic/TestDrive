@@ -2,6 +2,8 @@
 
 Real-time dashboard for visualising Arduino and micro-controller inner workings. Great for **tinkering**, **robots**, **weather stations** and more.
 
+Arduino ~> Serial ~> Computer ~> WWW ~> Dashboard
+
 ## Demo!
 
 To view the demo dashboard, please visit [URL](URL). It uses simulated
@@ -61,9 +63,14 @@ To make it easier to use, I am planning to compile the clojurescript to nodejs, 
 
 Improvements to the dashboard, including rearranging widgets. Adding graphs, maps, 3d visualisations, etc. However we can best represent your data.
 
-## Thank you
+## Thank you to
 * [Peter Schwarz](https://github.com/peterschwarz/)
 * [#clojure IRC channel](irc://...)
+* [Firmata]()
+* Justin Smith
+* technomancy
+* nkozo
+* bblo..
 
 ## Inspired by
 * Bret Victor - [Seeing Spaces (15:11)](http://vimeo.com/97903574)

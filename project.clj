@@ -28,6 +28,7 @@
                  [om "0.6.5"]
 
                  [clj-firmata "1.1.1-SNAPSHOT"]
+                 [clj-serial "2.0.1"]
 
                  [clj-time "0.8.0"]
                  [com.andrewmcveigh/cljs-time "0.1.6"]]
@@ -35,7 +36,6 @@
   :plugins [[lein-cljsbuild "1.0.3"]]
 
   :main seeing.core
-;;   :ring {:handler seeing.handler/app}
 
   :cljsbuild {
     :builds [
