@@ -2,6 +2,7 @@ body {
   background-color:#101214;
   margin:25px;
 }
+
 ul.widgets {
   margin: auto;
   padding: 0;
@@ -13,9 +14,11 @@ ul.widgets {
   -ms-user-select: none;
   user-select: none;
 }
+
 ul.widgets.grid {
   overflow: hidden;
 }
+
 ul.widgets li {
   list-style: none;
   color: #1C94C4;
@@ -23,14 +26,17 @@ ul.widgets li {
   padding: 5px;
   height: 22px;
 }
+
 ul.widgets.grid li {
   float: left;
         width: 200px;
   height: 220px;
 }
+
 ul.widgets li.highlight {
   background: #FEE25F;
 }
+
 li.widgets-placeholder {
   border: 1px dashed #fff;
 }
