@@ -31,7 +31,7 @@
 (defn read-board-events
   "Reads arduino serial data containing TestDrive messages"
   [port-name]
-  (let [port (or port-name (detect-board-port) "tty.usbmodemfa1331")]
+  (let [port (or port-name (detect-arduino-port) "tty.usbmodemfa1331")]
     (info "Connecting to Arduino using" port)
     (try
       (reset! board (firmata/open-board port))
