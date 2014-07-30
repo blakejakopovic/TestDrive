@@ -16,14 +16,14 @@
   (not= (.indexOf st sub) -1))
 
 (defn- arduino-port?
-  "Compares available ports with known arduino port names"
-  [s]
+  "Compares port name with known arduino port formats"
+  [port-name]
   (or
-    (substring? "tty.usbmodem" s)      ;; Uno or Mega 2560
-    (substring? "tty.usbserial" s)))   ;; Older boards
+    (substring? "tty.usbmodem" port-name)      ;; Uno or Mega 2560
+    (substring? "tty.usbserial" port-name)))   ;; Older boards
 
-(defn detect-board-port
-  "Detect arduino serial port based on port name"
+(defn detect-arduino-port
+  "Returns the first arduino serial port based on port name, or nil"
   []
   (first (filter arduino-port?
                  (map #(.getName %) (serial/port-ids)))))
