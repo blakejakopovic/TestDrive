@@ -46,4 +46,4 @@
       (catch Exception e
         (do
           (println "Firmata connection error: " (.getMessage e))
-          (System/exit 0))))))
+          (System/exit 1))))))
