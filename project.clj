@@ -43,11 +43,11 @@
             :output-dir "resources/public/js/"
             :output-to  "resources/public/js/main.js"
             :source-map "resources/public/js/main.js.map"
-            :optimization :advanced
+            :optimization :none
             :pretty-print true}
          :notify-command ["terminal-notifier"
                                          "-title"
                                          "CljsBuild Complete"
-                                         "-appIcon"
+                                         "-contentImage" ;; appIcon
                                          "resources/clojure-icon.png"
                                          "-message"]}]})

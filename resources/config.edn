@@ -1,3 +1,0 @@
-{:clj { :log-level :info }
-
- :cljs {}}
