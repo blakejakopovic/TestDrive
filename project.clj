@@ -28,8 +28,6 @@
 
                  [om "0.6.5"]
 
-                 [jarohen/chord "0.4.2"]
-
                  [clj-time "0.8.0"]
                  [com.andrewmcveigh/cljs-time "0.1.6"]]
 

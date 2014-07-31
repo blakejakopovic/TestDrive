@@ -5,16 +5,16 @@
             [taoensso.timbre :as timbre
              :refer (trace debug info warn error fatal)]))
 
-(def clients (atom {}))
+(def ^{:private true} clients (atom {}))
 
-(defn ws-on-close [status request channel]
+(defn- ws-on-close [status request channel]
   (swap! clients dissoc channel)
   (debug channel "disconnected from /events. status: " status))
 
-(defn ws-on-receive [message-string request channel]
+(defn- ws-on-receive [message-string request channel]
   (debug message-string))
 
-(defn ws-handler
+(defn- ws-handler
   [request]
   (with-channel request channel
     (if (websocket? channel)

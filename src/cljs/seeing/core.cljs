@@ -3,9 +3,9 @@
     [cljs.core.async :refer [chan <! >! put! take! close! timeout sliding-buffer]]
     [om.core :as om :include-macros true]
     [om.dom :as dom :include-macros true]
-    [chord.client :refer [ws-ch]]
     [clojure.string :refer [upper-case]]
-    [cljs-time.core :refer [now]])
+    [cljs-time.core :refer [now]]
+    [cljs.reader :refer [read-string]])
   (:require-macros
     [cljs.core.async.macros :refer [go go-loop]]))
 
@@ -19,20 +19,19 @@
   "Enable simulation mode"
   false)
 
-(def app-container-id "seeing-app")
-
 (def port 4567)
 (def ws-url (str "ws://localhost:" port "/events"))
 (def event-ch (chan 10))
 
 (def max-data-points
   "Set the maximum number of data points per sensor"
-  10)
+  100)
+
+(def app-container-id "seeing-app")
 
 (def app-state
   "The initial application state"
-  (atom {:sensors {}
-         :labels  {}}))
+  (atom {}))
 
 
 ;; UI HELPERS
@@ -116,16 +115,23 @@
       (render
        [_]
        (dom/ul #js {:className "widgets grid"}
-               (into-array (map #(om/build text-widget % {:react-key (key %)}) (:sensors cursor)))))))
+               (into-array (map #(om/build text-widget % {:react-key (key %)})
+                                (:sensors cursor)))))))
 
 
 ;; SIMUATION
 
 ;; EVENT MESSAGE
-;; {:type :event, :kind :temperature, :id 2, :value 25.6, :timestamp #inst "2014-07-26T05:13:29.051-00:00"}
+;; {:type :event,
+;;  :kind :temperature,
+;;  :id 2,
+;;  :value 25.6,
+;;  :timestamp #inst "2014-07-26T05:13:29.051-00:00"}
 
 ;; LABEL MESSAGE
-;; {:type :label, :id 2, :value Main Bedroom}
+;; {:type :label,
+;;  :id 2,
+;;  :value "Main Bedroom"}
 
 (defn simulate-event
   "Simulate a real semi-random event"
@@ -149,17 +155,36 @@
 
 ;; WEBSOCKETS
 
+(def ws-send (chan 5))
+(def ws-receive (chan 5))
+
 (defn init-websocket
   "Websocket setup and handler"
   []
-  (go
-    (let [{:keys [ws-channel]} (<! (ws-ch ws-url))]
-      (while true
-        (when-some [{:keys [message error]} (<! ws-channel)]
-          (if-not error
+  (let [ws (new js/WebSocket ws-url)]
+
+    (set! (.-onopen ws)
+        (fn [evt]
+          (if debug (println "WS Open:" (.-data evt)))))
+
+    (set! (.-onclose ws)
+        (fn [evt]
+          (if debug (println "WS Close:" (.-data evt)))))
+
+    (set! (.-onmessage ws)
+          (fn [evt] (let [data (.-data evt)
+                          msg (read-string data)]
+                         (put! event-ch msg)
+                         (if debug (println "WS Event:" msg)))))
+
+    (set! (.-onerror ws)
+          (fn [evt] (println "WS Error:" (.-data evt))))
+
+    (go (while ws
+          (if-let [msg (<! ws-send)]
             (do
-              (>! event-ch message)
-              (if debug (println message)))))))))
+              (.send ws msg)
+              (if debug (println "WS Send:" msg))))))))
 
 
 ;; INIT
@@ -175,25 +200,3 @@
 
 ;; Run init on dom ready
 (set! (.-onload js/window) init)
-
-
-
-
-
-
-;; add types
-;; - rotation 360 (for servos)
-;; - counter (for counting things)
-
-
-;; widget types
-;; - text
-;; - compass (orientation)
-;; - rotation
-;; - rotation-vector
-;; - map
-
-;; examples
-;; - weather station
-;; - tinkering/experimentation
-;; - robots

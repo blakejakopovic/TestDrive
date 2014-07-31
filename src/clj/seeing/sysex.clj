@@ -4,32 +4,36 @@
               consume-sysex
               read-two-byte-data]]))
 
-(def ^{:private true} SYSEX_TYPE_EVENT           0x01 )
-(def ^{:private true} SYSEX_TYPE_REGISTER        0x02 ) ;; LABEL
-(def ^{:private true} SYSEX_TYPE_LOG             0x03 ) ;; NEW
+;; TYPES
 
-(def ^{:private true} KIND_ACCELEROMETER         0x01 ) ;;;
-(def ^{:private true} KIND_MAGNETIC_FIELD        0x02 ) ;;;
+(def ^{:private true} SYSEX_TYPE_EVENT           0x01 )
+(def ^{:private true} SYSEX_TYPE_LABEL           0x02 )
+(def ^{:private true} SYSEX_TYPE_LOG             0x03 )
+
+;; EVENT KINDS
+
+(def ^{:private true} KIND_ACCELEROMETER         0x01 )
+(def ^{:private true} KIND_MAGNETIC_FIELD        0x02 )
 (def ^{:private true} KIND_ORIENTATION           0x03 )
-(def ^{:private true} KIND_GYROSCOPE             0x04 ) ;;;
+(def ^{:private true} KIND_GYROSCOPE             0x04 )
 (def ^{:private true} KIND_LIGHT                 0x05 )
 (def ^{:private true} KIND_PRESSURE              0x06 )
 
 (def ^{:private true} KIND_PROXIMITY             0x08 )
+
 (def ^{:private true} KIND_HUMIDITY              0x12 )
 (def ^{:private true} KIND_TEMPERATURE           0x13 )
 
 (def ^{:private true} KIND_VOLTAGE               0x15 )
 (def ^{:private true} KIND_CURRENT               0x16 )
-(def ^{:private true} KIND_COLOR                 0x17 ) ;;;
+(def ^{:private true} KIND_COLOR                 0x17 )
 (def ^{:private true} KIND_SWITCH                0x18 )
 (def ^{:private true} KIND_ROTATION              0x19 )
 (def ^{:private true} KIND_COUNTER               0x20 )
 (def ^{:private true} KIND_LATLONG               0x21 )
 
-;; KIND_ROTATION (degrees)
 
-(def friendly-kinds
+(def ^{:private true} friendly-kinds
   "Hash-map containing keyword values for event kind"
   {KIND_ACCELEROMETER        :acceleration
    KIND_MAGNETIC_FIELD       :magnetic-field
@@ -66,10 +70,11 @@
         (into [] (map bytes-to-float coll)))
       (bytes-to-float data)))
 
+
 ;;
 ;; The following extends the internal multi-method defined
 ;; in clj-firmata. It takes an event type and returns a
-;; hash-map a type key and appropriate values.
+;; hash-map with :type and appropriate values.
 ;;
 
 (defmethod read-sysex-event SYSEX_TYPE_EVENT
@@ -85,7 +90,7 @@
      :value value
      :timestamp now}))
 
-(defmethod read-sysex-event SYSEX_TYPE_REGISTER
+(defmethod read-sysex-event SYSEX_TYPE_LABEL
   [in]
   (let [id   (.read in)
         value (consume-sysex in "" #(str %1 (char %2)))]

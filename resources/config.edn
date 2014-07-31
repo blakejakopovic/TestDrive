@@ -1,6 +1,3 @@
-{:clj { :log-level :info
-
-        ;; :server-port 4567
-      }
+{:clj { :log-level :info }
 
  :cljs {}}

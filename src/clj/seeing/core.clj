@@ -6,7 +6,7 @@
             [seeing.board   :as board]))
 
 (defn setup-logger []
-  (timbre/set-level!(or (:log-level config) :info)))
+  (timbre/set-level! (or (:log-level config) :info)))
 
 (def server-url
   (let [port (or (:server-port config) 4567)]

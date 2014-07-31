@@ -9,8 +9,8 @@
             [seeing.config :refer [config]]
             [seeing.routes.events :refer [broadcast-event!]]))
 
-(def board (atom nil))
-(def receiver-ch (atom nil))
+(def ^{:private true} board (atom nil))
+(def ^{:private true} receiver-ch (atom nil))
 
 (defn- substring? [sub st]
   (not= (.indexOf st sub) -1))
@@ -22,7 +22,7 @@
     (substring? "tty.usbmodem" port-name)      ;; Uno or Mega 2560
     (substring? "tty.usbserial" port-name)))   ;; Older boards
 
-(defn detect-arduino-port
+(defn- detect-arduino-port
   "Returns the first arduino serial port based on port name, or nil"
   []
   (first (filter arduino-port?
@@ -31,8 +31,13 @@
 (defn read-board-events
   "Reads arduino serial data containing TestDrive messages"
   [port-name]
-  (let [port (or port-name (detect-arduino-port) "tty.usbmodemfa1331")]
+  (let [port (or port-name
+                 (:serial-port config)
+                 (detect-arduino-port)
+                 "tty.usbmodemfa1331")]
+
     (info "Connecting to Arduino using" port)
+
     (try
       (reset! board (firmata/open-board port))
       (reset! receiver-ch (firmata/event-channel @board))
@@ -43,6 +48,7 @@
         (go (while true
             (if-let [event (<! @receiver-ch)]
               (broadcast-event! event))))
+
       (catch Exception e
         (do
           (println "Firmata connection error: " (.getMessage e))
