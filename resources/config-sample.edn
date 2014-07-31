@@ -1,10 +1,12 @@
 {:clj {
-       ;; Set the debug level (default: :info)
-       :log-level :info
+        ;; Set the debug level (default: :info)
+        :log-level :info
 
-       ;; Set the serial port name (default: nil)
-       ;; nil: will use auto-detect to select a port
-       :serial-port nil
+        ;; Set the serial port name (default: nil)
+        ;; nil: will use auto-detect to select a port
+        :serial-port nil
 
-       ;; Set the ring server port (default: 4567)
-       :server-port 4567}}
+        ;; Set the ring server port (default: 4567)
+        :server-port 4567
+ }
+}

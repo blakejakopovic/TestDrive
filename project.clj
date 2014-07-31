@@ -50,4 +50,10 @@
                                          "CljsBuild Complete"
                                          "-contentImage" ;; appIcon
                                          "resources/clojure-icon.png"
-                                         "-message"]}]})
+                                         "-message"]}
+       {:id "demo"
+        :source-paths ["src/cljs"]
+        :compiler {
+            :output-dir "demo/js/"
+            :output-to  "demo/js/main.js"
+            :optimization :advanced}}]})

@@ -1,6 +1,7 @@
 (ns seeing.core
   (:require
-    [cljs.core.async :refer [chan <! >! put! take! close! timeout sliding-buffer]]
+    [cljs.core.async :refer [chan <! >! put! take!
+                             close! timeout sliding-buffer]]
     [om.core :as om :include-macros true]
     [om.dom :as dom :include-macros true]
     [clojure.string :refer [upper-case]]
@@ -63,7 +64,8 @@
   [cursor {:keys [kind id value timestamp] :as payload}]
   (om/transact! cursor
                 [:sensors {:kind kind :label-id id} :values]
-                #(conj (vec (take-last max-data-points %)) [value timestamp])))
+                #(conj (vec (take-last max-data-points %))
+                       [value timestamp])))
 
 
 (defn process-new-label
@@ -75,7 +77,9 @@
 (defn process-new-log
   "Process a log message by adding is to the app-state"
   [cursor {:keys [id value] :as payload}]
-  (om/transact! cursor [:log] #(conj (vec (take-last max-log-entries %)) {:id id :value value})))
+  (om/transact! cursor [:log]
+                #(conj (vec (take-last max-log-entries %))
+                       {:id id :value value})))
 
 
 ;; OM
@@ -127,8 +131,9 @@
       (render
        [_]
        (dom/ul #js {:className "widgets grid"}
-               (into-array (map #(om/build text-widget % {:react-key (key %)})
-                                (:sensors cursor)))))))
+               (into-array
+                (map #(om/build text-widget % {:react-key (key %)})
+                     (:sensors cursor)))))))
 
 
 ;; SIMUATION
@@ -150,15 +155,20 @@
 ;;  :id 0,
 ;;  :value "Hello World"}
 
-(defn simulate-event
+(defn- simulate-event
   "Simulate a real semi-random event"
   []
   (rand-nth
-   [{:type :event :kind :temperature :id 1 :value (+ 19.0 (rand-int 8)) :timestamp (now)}
-    {:type :event :kind :pressure :id 2 :value (+ 995 (rand-int 11)) :timestamp (now)}
-    {:type :event :kind :humidity :id 3 :value (+ 58.0 (rand-int 8)) :timestamp (now)}
-    {:type :event :kind :altitude :id 1 :value (+ 15.0 (rand-int 6)) :timestamp (now)}
-    {:type :event :kind :voltage :id 2 :value (+ 3.0 (rand-int 2)) :timestamp (now)}
+   [{:type :event :kind :temperature :id 1
+     :value (+ 19.0 (rand-int 8)) :timestamp (now)}
+    {:type :event :kind :pressure :id 2
+     :value (+ 995 (rand-int 11)) :timestamp (now)}
+    {:type :event :kind :humidity :id 3
+     :value (+ 58.0 (rand-int 8)) :timestamp (now)}
+    {:type :event :kind :altitude :id 1
+     :value (+ 15.0 (rand-int 6)) :timestamp (now)}
+    {:type :event :kind :voltage :id 2
+     :value (+ 3.0 (rand-int 2)) :timestamp (now)}
     {:type :label :id 1 :value "Main Bedroom"}
     {:type :label :id 2 :value "Kitchen"}]))
 
@@ -166,8 +176,10 @@
   "Start event simulation"
   []
   (go (while true
-        (>! event-ch (simulate-event))
-        (<! (timeout 200)))))
+        (let [event (simulate-event)]
+        (>! event-ch event)
+        (if debug (println "Simulated Event: " event))
+        (<! (timeout 200))))))
 
 
 ;; WEBSOCKETS
@@ -213,7 +225,9 @@
     {:target (. js/document (getElementById app-container-id))})
   (if-not simulation
     (init-websocket)
-    (simulate-events)))
+    (do
+      (simulate-events)
+      (println "Simulation mode enabled. All data displayed is generated."))))
 
 ;; Run init on dom ready
 (set! (.-onload js/window) init)
