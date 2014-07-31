@@ -13,3 +13,4 @@ node_modules/
 resources/public/lib/
 /.env
 /resources/config.edn
+/demo/
