@@ -27,6 +27,10 @@
   "Set the maximum number of data points per sensor"
   100)
 
+(def max-log-entries
+  "Set the total maximum number of log entries"
+  200)
+
 (def app-container-id "seeing-app")
 
 (def app-state
@@ -61,10 +65,17 @@
                 [:sensors {:kind kind :label-id id} :values]
                 #(conj (vec (take-last max-data-points %)) [value timestamp])))
 
+
 (defn process-new-label
   "Process a label by adding it to the app-state"
   [cursor {:keys [id value] :as payload}]
   (om/update! cursor [:labels id] value))
+
+
+(defn process-new-log
+  "Process a log message by adding is to the app-state"
+  [cursor {:keys [id value] :as payload}]
+  (om/transact! cursor [:log] #(conj (vec (take-last max-log-entries %)) {:id id :value value})))
 
 
 ;; OM
@@ -109,6 +120,7 @@
             (condp = type
               :label (process-new-label cursor payload)
               :event (process-new-event cursor payload)
+              :log   (process-new-log cursor payload)
               nil))))))
 
     om/IRender
@@ -132,6 +144,11 @@
 ;; {:type :label,
 ;;  :id 2,
 ;;  :value "Main Bedroom"}
+
+;; LOG MESSAGE
+;; {:type :log,
+;;  :id 0,
+;;  :value "Hello World"}
 
 (defn simulate-event
   "Simulate a real semi-random event"

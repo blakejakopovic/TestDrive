@@ -100,6 +100,8 @@
 
 (defmethod read-sysex-event SYSEX_TYPE_LOG
   [in]
-  (let [value (consume-sysex in "" #(str %1 (char %2)))]
+  (let [id   (.read in)
+        value (consume-sysex in "" #(str %1 (char %2)))]
     {:type :log
+     :id id
      :value value}))
