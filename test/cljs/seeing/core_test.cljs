@@ -1,1 +1,0 @@
-(ns seeing.core-test)
