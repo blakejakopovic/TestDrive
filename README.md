@@ -1,31 +1,40 @@
-# TestDrive Real-time Dashboard
+Mission Control
+===
+<img src="http://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Mission_control_center.jpg/640px-Mission_control_center.jpg" width="500" />
 
-Real-time dashboard for visualising Arduino and micro-controller inner workings. Great for **tinkering**, **robots**, **weather stations** and more.
+A **real-time dashboard for visualising Arduino** and micro-controller inner workings. Great for **tinkering**, **robotics**, **sensor monitoring**, and more.
 
-Arduino ~> Serial ~> Computer ~> WWW ~> Dashboard
+**!! Please be aware that this is an early release. Things may break.**
+
+## How it works 
+Mission Control uses the [TestDrive Arduino](#) library to help you send your sensor and related data to the dashboard, using an extension of the popular [Firmata Protocol](http://firmata.org/wiki/Main_Page).
+
+## Data-flow
+**Arduino ~> Serial ~> Computer ~> WWW ~> Dashboard**
+
+*Note: TCP/UDP/Bluetooth are all being experimented with as alternative ways to receive data.* 
 
 ## Demo!
 
 To view the demo dashboard, please visit [URL](URL). It uses simulated
-sensor readings, but your dashboard will be automatically customised for
-your usage.
+sensor readings, but your dashboard will be automatically customised based on the data you send it.
 
 ## Key Features
 
-* Easy to use Arduino library
-* Automatic dashboard creation based on the data you send it
-* Supports a tonne of different sensor types; including temperature, humidity, voltage, current, pressure, orientation, acceleration, gyroscopic tilt, colour, latitude and longitude, switches and more.
+* Simple Arduino library and existing project integration
+* Supports many sensor readings, including **Acceleration, Magnetic, Orientation, Gyro, Temperature, Distance, Light, Pressure, Humidity, Current, Voltage, and Color**
 * Ability to show the same dashboard on multiple screens (including TVs, laptops, tablets, smart phones, projectors, and other browser enabled devices)
 
 
 ## Dependancies
 
-* Java
-* Clojure
-* Leiningen
-* Arduino IDE (or way to upload sketches)
+* Java 7+
+* [Clojure/Clojurescript](http://clojure.org/)
+* [Leiningen](http://leiningen.org/)
 
-## Usage
+*Note: I am working on porting the server to a node.js , which will enable node-webkit releases and fewer dependencies.*
+
+## Getting Started
 
 ```
 # Download the project
@@ -52,25 +61,21 @@ $ lein run <tty.usbmodemxxxx>
 $ open http://localhost:4567/
 
 The dashboard should automatically populate with
-sample widgets.
+live widgets.
 
 ```
 
 ## Future
-There are plans to support both Serial and TCP communication. This means you won't need to have your serial cable plugged in, and you can show data from remote devices.
+There are plans to support both Serial and TCP communication. This means you won't need to have your serial cable plugged in, and you can visualise data from remote devices.
 
-To make it easier to use, I am planning to compile the clojurescript to nodejs, and then distribute TestDrive as a node-webkit application. This means you will only need to launch an app, and have everything just work.
+To make it easier to use, I am planning to compile the clojurescript code to nodejs, and then distribute Mission Control as a node-webkit application. This means you will only need to launch an app, and have everything just work.
 
-Improvements to the dashboard, including rearranging widgets. Adding graphs, maps, 3d visualisations, etc. However we can best represent your data.
+Improvements to the dashboard, including rearranging widgets. Adding graphs, maps, 3d visualisations, etc. Show your data in the most meaningful way possible.
 
 ## Thank you to
 * [Peter Schwarz](https://github.com/peterschwarz/)
-* [#clojure IRC channel](irc://...)
-* [Firmata]()
-* Justin Smith
-* technomancy
-* nkozo
-* bblo..
+* [#clojure IRC channel](irc://chat.freenode.net/#clojure)
+* [Firmata](http://firmata.org/wiki/Main_Page)
 
 ## Inspired by
 * Bret Victor - [Seeing Spaces (15:11)](http://vimeo.com/97903574)
