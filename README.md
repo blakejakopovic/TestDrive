@@ -4,7 +4,7 @@ Mission Control
 
 A **real-time dashboard for visualising Arduino** and micro-controller inner workings. Great for **tinkering**, **robotics**, **sensor monitoring**, and more.
 
-**!! Please be aware that this is an early release. Things may break.**
+**!! Please be aware that this is an early release. Things may break. APIs may change. I may look silly.**
 
 ## How it works 
 Mission Control uses the [TestDrive Arduino](#) library to help you send your sensor and related data to the dashboard, using an extension of the popular [Firmata Protocol](http://firmata.org/wiki/Main_Page).
@@ -70,11 +70,11 @@ There are plans to support both Serial and TCP communication. This means you won
 
 To make it easier to use, I am planning to compile the clojurescript code to nodejs, and then distribute Mission Control as a node-webkit application. This means you will only need to launch an app, and have everything just work.
 
-Improvements to the dashboard, including rearranging widgets. Adding graphs, maps, 3d visualisations, etc. Show your data in the most meaningful way possible.
+Improvements to the dashboard, including rearranging widgets, widget size support, more data types,  graphs, maps, 3d visualisations, etc. The goal will be to display your data in the most meaningful way possible.
 
-## Thank you to
+## Thank you
 * [Peter Schwarz](https://github.com/peterschwarz/)
-* [#clojure IRC channel](irc://chat.freenode.net/#clojure)
+* [Clojure IRC](irc://chat.freenode.net/#clojure)
 * [Firmata](http://firmata.org/wiki/Main_Page)
 
 ## Inspired by
