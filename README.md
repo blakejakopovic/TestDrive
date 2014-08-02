@@ -80,6 +80,9 @@ Improvements to the dashboard, including rearranging widgets, widget size suppor
 ## Inspired by
 * Bret Victor - [Seeing Spaces (15:11)](http://vimeo.com/97903574)
 
+## Contributing
+All contributions welcome.
+
 ## License
 
 Copyright © 2014 Blake Jakopovic
