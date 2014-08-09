@@ -26,7 +26,7 @@
                  [clj-firmata "1.1.2"]
                  [clj-serial "2.0.1"]
 
-                 [om "0.6.5"]
+                 [om "0.7.1"]
 
                  [clj-time "0.8.0"]
                  [com.andrewmcveigh/cljs-time "0.1.6"]]
