@@ -42,7 +42,7 @@
         :compiler {
             :output-dir "resources/public/js/"
             :output-to  "resources/public/js/main.js"
-            :source-map "resources/public/js/main.js.map"
+;;             :source-map "resources/public/js/main.js.map"
             :optimization :none
             :pretty-print true}
          :notify-command ["terminal-notifier"
@@ -50,10 +50,4 @@
                                          "CljsBuild Complete"
                                          "-contentImage" ;; appIcon
                                          "resources/clojure-icon.png"
-                                         "-message"]}
-       {:id "demo"
-        :source-paths ["src/cljs"]
-        :compiler {
-            :output-dir "demo/js/"
-            :output-to  "demo/js/main.js"
-            :optimization :advanced}}]})
+                                         "-message"]}]})
