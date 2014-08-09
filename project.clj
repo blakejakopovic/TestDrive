@@ -8,7 +8,7 @@
   :source-paths ["src" "src/clj"]
 
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [org.clojure/clojurescript "0.0-2277"]
+                 [org.clojure/clojurescript "0.0-2307"]
 
                  [org.clojure/core.async "0.1.303.0-886421-alpha"]
 
