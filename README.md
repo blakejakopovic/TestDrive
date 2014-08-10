@@ -10,9 +10,9 @@ A **real-time dashboard for visualising Arduino** and micro-controller inner wor
 TestDrive uses the [TestDrive Arduino](#) library to help you send your sensor and related data to the dashboard, using an extension of the popular [Firmata Protocol](http://firmata.org/wiki/Main_Page).
 
 ## Data-flow
-**Arduino ~> Serial ~> Computer ~> WWW ~> Dashboard**
+**Arduino ~> USB Serial ~> Computer ~> Web Server ~> Dashboard**
 
-*Note: TCP/UDP/Bluetooth are all being experimented with as alternative ways to receive data.* 
+*Note: TCP/UDP/Bluetooth are all being experimented on as alternative ways to receive data.* 
 
 ## Demo!
 
@@ -24,7 +24,6 @@ sensor readings, but your dashboard will be automatically customised based on th
 * Simple Arduino library and existing project integration
 * Supports many sensor readings, including **Temperature, Distance, Light, Pressure, Altitude, Humidity, Current and Voltage** (with Acceleration, Magnetic, Orientation, Gyro, Color and others coming soon)
 * Ability to show the same dashboard on multiple screens at the same time (including TVs, laptops, tablets, smart phones, projectors, and other browser enabled devices)
-
 
 ## Dependancies
 
@@ -48,7 +47,7 @@ $ cd TestDrive
 3. Upload the sketch to the Arduino
 *(make sure you keep your Arduino plugged in)
 
-# Compile the dashboard clojurescript
+# Compile the dashboard clojurescript code
 $ lein cljsbuild once
 
 # Start the TestDrive server
@@ -78,6 +77,9 @@ Improvements to the dashboard, including rearranging widgets, widget size suppor
 
 ## Inspired by
 * Bret Victor - [Seeing Spaces (15:11)](http://vimeo.com/97903574)
+
+## Credits
+* [Mission Control image](http://en.wikipedia.org/wiki/Christopher_C._Kraft_Jr._Mission_Control_Center)
 
 ## Contributing
 All contributions welcome. Just keep in mind it's very early on and many things are still falling into place.
