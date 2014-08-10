@@ -13,36 +13,48 @@
 
 (enable-console-print!)
 
-(def debug
-  "Enable console debug logging"
-  false)
+(def app-state
+  "The initial application state"
+  (atom {;; Dom ID for application
+         :app-container-id "testdrive-app"
 
-(def simulation
-  "Enable simulation mode"
-  false)
+         ;; Websocket port
+         :port 4567
 
-(def port 4567)
-(def ws-url (str "ws://localhost:" port "/events"))
-(def event-ch (chan 10))
+         ;; Websocket connection state
+         :connected? false
+
+         ;; Console visibility
+         :console-hidden? true
+
+         ;; Set the maximum number of data points per sensor
+         :max-data-points 100
+
+         ;; Set the total maximum number of log entries
+         :max-log-entries 100
+
+         ;; Enable console (debug) logging
+         :debug false
+
+         ;; Enable simulation mode
+         :simulation false}))
+
+(defn ws-url [] (str "ws://localhost:" (config :port) "/events"))
+
+(def event-ch
+  "Event channel for websocket messages"
+  (chan 10))
 
 (def connection-ch
   "Channel for websocket state change updates"
   (chan))
 
-(def max-data-points
-  "Set the maximum number of data points per sensor"
-  100)
+;; STATE HELPERS
 
-(def max-log-entries
-  "Set the total maximum number of log entries"
-  100)
+(defn config [k]
+  (get @app-state k))
 
-(def app-container-id "seeing-app")
-
-(def app-state
-  "The initial application state"
-  (atom {:connected? false
-         :console-hidden? true}))
+(defn debug [] (config :debug))
 
 
 ;; UI HELPERS
@@ -50,9 +62,11 @@
 (defn label-for
   "Fetches a defined label from the app-state, or uses a generic one"
   [label-id]
-  (if-let [label (get (:labels @app-state) label-id)]
-    (upper-case label)
-    (str "id: " label-id)))
+  (if (= label-id 0)
+    (str "GENERAL")
+    (if-let [label (get (:labels @app-state) label-id)]
+      (upper-case label)
+      (str "LABEL " label-id))))
 
 (def unit-for
   "A map containing user facing strings for unit types"
@@ -60,7 +74,8 @@
    :humidity    "percent (%)"
    :pressure    "hectopascals (hPa)"
    :altitude    "meters (m)"
-   :voltage     "volts (V)"})
+   :voltage     "volts (V)"
+   :current     "milliamps (mA)"})
 
 
 ;; EVENT PROCESING
@@ -70,7 +85,7 @@
   [cursor {:keys [kind id value timestamp] :as payload}]
   (om/transact! cursor
                 [:sensors {:kind kind :label-id id} :values]
-                #(conj (vec (take-last max-data-points %))
+                #(conj (vec (take-last (config :max-data-points) %))
                        [value timestamp])))
 
 
@@ -84,7 +99,7 @@
   "Process a log message by adding is to the app-state"
   [cursor {:keys [id value] :as payload}]
   (om/transact! cursor [:console]
-                #(conj (vec (take-last max-log-entries %))
+                #(conj (vec (take-last (config :max-log-entries) %))
                        {:id id :value value})))
 
 
@@ -170,7 +185,8 @@
       (render
        [_]
        (dom/div #js {:id "console"
-                     :className (str "console" (when (:console-hidden? cursor) "hidden"))}
+                     :className (str "console"
+                                     (when (:console-hidden? cursor) "hidden"))}
                 (dom/div #js {:className "header"}
                          (dom/span #js {:className "glyphicon glyphicon-dashboard"})
                          (dom/span #js {:className "title"} "CONSOLE"))
@@ -188,6 +204,17 @@
             (dom/h2 nil "Awaiting connection...")
             (dom/a #js {:href "#"} "This seems to be taking a while...?"))))
 
+
+(defn header-bar
+  "Dashboard header with logo and actions"
+  [cursor owner]
+  (om/component
+   (dom/div #js {:id "header"
+                 :className "header clearfix"}
+            (dom/div #js {:className "logo"}
+                     (dom/span #js {:className "glyphicon glyphicon-dashboard"})
+                     (dom/span #js {:className "title"} "TestDrive Dashboard"))
+            (dom/div #js {:className "actions"} ""))))
 
 (defn dashboard
   "OM Root function"
@@ -209,6 +236,7 @@
        [_]
        (if (:connected? cursor)
          (dom/div #js {:id "dashboard"}
+;;                   (om/build header-bar cursor)
                   (om/build widget-list cursor)
                   (om/build console cursor))
          (om/build not-connected cursor)))))
@@ -250,17 +278,21 @@
     {:type :event :kind :voltage :id 2
      :value (+ 3.0 (rand-int 2)) :timestamp (now)}
     {:type :label :id 1 :value "Main Bedroom"}
-    {:type :label :id 2 :value "Kitchen"}]))
+    {:type :label :id 2 :value "Kitchen"}
+    {:type :log :id 2 :value "Hello"}
+    {:type :log :id 1 :value "World"}
+    {:type :log :id 0 :value "General message"}]))
 
 
 (defn simulate-events
   "Start event simulation"
   []
+  (put! connection-ch :open)
   (go (while true
         (let [event (simulate-event)]
         (>! event-ch event)
-        (if debug (println "Simulated Event: " event))
-        (<! (timeout 200))))))
+        (if (debug) (println "Simulated Event: " event))
+        (<! (timeout 100))))))
 
 
 ;; WEBSOCKETS
@@ -271,23 +303,23 @@
 (defn init-websocket
   "Websocket setup and handler"
   []
-  (let [ws (new js/WebSocket ws-url)]
+  (let [ws (new js/WebSocket (ws-url))]
 
     (set! (.-onopen ws)
         (fn [evt]
           (put! connection-ch :open)
-          (if debug (println "WS Open:" (.-data evt)))))
+          (if (debug) (println "WS Open:" (.-data evt)))))
 
     (set! (.-onclose ws)
         (fn [evt]
           (put! connection-ch :close)
-          (if debug (println "WS Close:" (.-data evt)))))
+          (if (debug) (println "WS Close:" (.-data evt)))))
 
     (set! (.-onmessage ws)
           (fn [evt] (let [data (.-data evt)
                           msg (read-string data)]
                          (put! event-ch msg)
-                         (if debug (println "WS Event:" msg)))))
+                         (if (debug) (println "WS Event:" msg)))))
 
     (set! (.-onerror ws)
           (fn [evt] (println "WS Error:" (.-data evt))))
@@ -296,7 +328,7 @@
           (if-let [msg (<! ws-send)]
             (do
               (.send ws msg)
-              (if debug (println "WS Send:" msg))))))))
+              (if (debug) (println "WS Send:" msg))))))))
 
 
 ;; INIT
@@ -305,8 +337,8 @@
   "DOM ready initialisation of application"
   []
   (om/root dashboard app-state
-    {:target (. js/document (getElementById app-container-id))})
-  (if-not simulation
+    {:target (. js/document (getElementById (config :app-container-id)))})
+  (if-not (config :simulation)
     (init-websocket)
     (do
       (simulate-events)
