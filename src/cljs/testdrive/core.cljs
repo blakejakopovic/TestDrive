@@ -39,8 +39,6 @@
          ;; Enable simulation mode
          :simulation false}))
 
-(defn ws-url [] (str "ws://localhost:" (config :port) "/events"))
-
 (def event-ch
   "Event channel for websocket messages"
   (chan 10))
@@ -53,6 +51,8 @@
 
 (defn config [k]
   (get @app-state k))
+
+(defn ws-url [] (str "ws://localhost:" (config :port) "/events"))
 
 (defn debug [] (config :debug))
 
@@ -202,7 +202,8 @@
   (om/component
    (dom/div #js {:className "no-connection"}
             (dom/h2 nil "Awaiting connection...")
-            (dom/a #js {:href "#"} "This seems to be taking a while...?"))))
+            (dom/a #js {:href "https://github.com/blakejakopovic/TestDrive"}
+                   "This seems to be taking a while...?"))))
 
 
 (defn header-bar

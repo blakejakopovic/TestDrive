@@ -16,7 +16,7 @@ TestDrive uses the [TestDrive Arduino](#) library to help you send your sensor a
 
 ## Demo!
 
-To view the demo dashboard, please visit [URL](URL). It uses simulated
+To view the demo dashboard, please visit [http://blakejakopovic.github.io/TestDrive/](http://blakejakopovic.github.io/TestDrive/). It uses simulated
 sensor readings, but your dashboard will be automatically customised based on the data you send it.
 
 ## Key Features
