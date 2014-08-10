@@ -77,6 +77,10 @@
    :voltage     "volts (V)"
    :current     "milliamps (mA)"})
 
+(defn pretty-value [n]
+  (if (> n 999)
+    (int n)
+    (.toFixed n 1)))
 
 ;; EVENT PROCESING
 
@@ -114,7 +118,7 @@
 
 
 (defn text-widget-content [cursor owner]
-  (let [value (-> cursor val :values last first)
+  (let [value (-> cursor val :values last first pretty-value)
         unit  (-> cursor key :kind unit-for)
         label (-> cursor key :label-id label-for)]
     (om/component
@@ -186,7 +190,7 @@
        [_]
        (dom/div #js {:id "console"
                      :className (str "console"
-                                     (when (:console-hidden? cursor) "hidden"))}
+                                     (when (:console-hidden? cursor) " hidden"))}
                 (dom/div #js {:className "header"}
                          (dom/span #js {:className "glyphicon glyphicon-dashboard"})
                          (dom/span #js {:className "title"} "CONSOLE"))
