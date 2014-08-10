@@ -30,7 +30,7 @@ sensor readings, but your dashboard will be automatically customised based on th
 
 **Currently developed and tested using OS X 10.10 Yosemite**
 
-* Java 7+
+* Java
 * [Clojure/Clojurescript](http://clojure.org/)
 * [Leiningen](http://leiningen.org/)
 
@@ -44,7 +44,7 @@ $ cd TestDrive
 
 # Download the TestDrive Arduino Library (TestDrive-Arduino)
 1. Load the TestDrive-Arduino Library* into the Arduino IDE*
-2. Open the example TestDriveExample.ino
+2. Open TestDriveExample.ino
 3. Upload the sketch to the Arduino
 *(make sure you keep your Arduino plugged in)
 
@@ -73,8 +73,8 @@ Improvements to the dashboard, including rearranging widgets, widget size suppor
 
 ## Thank you
 * [Peter Schwarz](https://github.com/peterschwarz/)
-* [Clojure IRC](irc://chat.freenode.net/#clojure)
 * [Firmata](http://firmata.org/wiki/Main_Page)
+* Clojure IRC (chat.freenode.net/#clojure)
 
 ## Inspired by
 * Bret Victor - [Seeing Spaces (15:11)](http://vimeo.com/97903574)
