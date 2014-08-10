@@ -6,11 +6,13 @@
     [om.dom :as dom :include-macros true]
     [clojure.string :refer [upper-case]]
     [cljs-time.core :refer [now]]
+    [cljs-time.format :refer [formatters unparse]]
     [cljs.reader :refer [read-string]])
   (:require-macros
-    [cljs.core.async.macros :refer [go go-loop]]))
+    [cljs.core.async.macros :refer [go]]))
 
 (enable-console-print!)
+
 
 (def debug
   "Enable console debug logging"
@@ -24,6 +26,10 @@
 (def ws-url (str "ws://localhost:" port "/events"))
 (def event-ch (chan 10))
 
+(def connection-ch
+  "Channel for websocket state change updates"
+  (chan))
+
 (def max-data-points
   "Set the maximum number of data points per sensor"
   100)
@@ -36,7 +42,8 @@
 
 (def app-state
   "The initial application state"
-  (atom {}))
+  (atom {:connected? false
+         :console-hidden? true}))
 
 
 ;; UI HELPERS
@@ -77,7 +84,7 @@
 (defn process-new-log
   "Process a log message by adding is to the app-state"
   [cursor {:keys [id value] :as payload}]
-  (om/transact! cursor [:log]
+  (om/transact! cursor [:console]
                 #(conj (vec (take-last max-log-entries %))
                        {:id id :value value})))
 
@@ -115,6 +122,7 @@
 
 (defn widget-list [cursor owner]
   (reify
+
     om/IWillMount
       (will-mount
        [_]
@@ -135,6 +143,70 @@
                 (map #(om/build text-widget % {:react-key (key %)})
                      (:sensors cursor)))))))
 
+
+(defn console-entry [{:keys [id value] :as cursor} owner]
+  (let [label (label-for id)
+        timestamp (unparse (formatters :date-hour-minute-second) (now))]
+  (om/component
+   (dom/li nil (str timestamp " [" label "]: " value)))))
+
+
+(defn console [cursor owner]
+  (reify
+
+    om/IDidUpdate
+    (did-update
+      [this prev-props prev-state]
+      (let [console (. js/document (getElementById "console-content"))]
+           (set! (.-scrollTop console) (.-scrollHeight console)))
+       (if-not (empty? (:console cursor))
+         (om/update! cursor [:console-hidden?] false)
+         (om/update! cursor [:console-hidden?] true)))
+
+    om/IRender
+      (render
+       [_]
+       (dom/div #js {:id "console"
+                     :className (str "console" (when (:console-hidden? cursor) "hidden"))}
+                (dom/div #js {:className "title"}
+                         (dom/strong nil "Console"))
+                (dom/div #js {:id "console-content" :className "content"}
+                         (dom/ul nil
+                                 (into-array
+                                  (map #(om/build console-entry %)
+                                                  (:console cursor)))))))))
+
+(defn not-connected
+  "Component to show when no connection"
+  [cursor owner]
+  (om/component
+   (dom/div #js {:className "no-connection"}
+            (dom/h2 nil "Awaiting connection...")
+            (dom/a #js {:href "#"} "This seems to be taking a while...?"))))
+
+(defn dashboard
+  "OM Root function"
+  [cursor owner]
+  (reify
+
+    om/IWillMount
+    (will-mount
+       [_]
+       (go (while true
+        (if-let [state (<! connection-ch)]
+          (condp = state
+            :open  (om/update! cursor [:connected?] true)
+            :close (om/update! cursor [:connected?] false)
+            nil)))))
+
+    om/IRender
+      (render
+       [_]
+       (if (:connected? cursor)
+         (dom/div #js {:id "dashboard"}
+                  (om/build widget-list cursor)
+                  (om/build console cursor))
+         (om/build not-connected cursor)))))
 
 ;; SIMUATION
 
@@ -194,10 +266,12 @@
 
     (set! (.-onopen ws)
         (fn [evt]
+          (put! connection-ch :open)
           (if debug (println "WS Open:" (.-data evt)))))
 
     (set! (.-onclose ws)
         (fn [evt]
+          (put! connection-ch :close)
           (if debug (println "WS Close:" (.-data evt)))))
 
     (set! (.-onmessage ws)
@@ -221,7 +295,7 @@
 (defn init
   "DOM ready initialisation of application"
   []
-  (om/root widget-list app-state
+  (om/root dashboard app-state
     {:target (. js/document (getElementById app-container-id))})
   (if-not simulation
     (init-websocket)
