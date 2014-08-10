@@ -1,4 +1,4 @@
-(ns seeing.handler
+(ns testdrive.handler
   (:use [compojure.core :only (defroutes GET)]
         [org.httpkit.server :only (run-server)])
   (:require [ring.middleware.reload :as reload]
@@ -7,8 +7,8 @@
             [ring.util.response :refer [file-response]]
             [ring.middleware.cors :as cors]
             [ring.middleware.anti-forgery :refer [wrap-anti-forgery]]
-            [seeing.routes.events :as events]
-            [seeing.config :refer [config]]))
+            [testdrive.routes.events :as events]
+            [testdrive.config :refer [config]]))
 
 (defroutes app-routes
   (GET "/" [] (file-response "index.html" {:root "resources/public"}))

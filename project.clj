@@ -1,4 +1,4 @@
-(defproject seeing "0.1.0-SNAPSHOT"
+(defproject testdrive "0.1.0-SNAPSHOT"
   :description "Real-time dashboard for visualising Arduino and micro-controller inner workings"
   :url "http://github.com/blakejakopovic"
 
@@ -33,7 +33,7 @@
 
   :plugins [[lein-cljsbuild "1.0.3"]]
 
-  :main seeing.core
+  :main testdrive.core
 
   :cljsbuild {
     :builds [

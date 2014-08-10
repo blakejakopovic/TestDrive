@@ -1,4 +1,4 @@
-(ns seeing.core
+(ns testdrive.core
   (:require
     [cljs.core.async :refer [chan <! >! put! take!
                              close! timeout sliding-buffer]]

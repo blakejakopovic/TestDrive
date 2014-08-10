@@ -1,4 +1,4 @@
-(ns seeing.routes.events
+(ns testdrive.routes.events
   (:use [compojure.core :only (defroutes GET POST)])
   (:require [org.httpkit.server :refer [with-channel websocket? on-close on-receive send!]]
             [clojure.core.async :refer [<! >! put! close! go]]

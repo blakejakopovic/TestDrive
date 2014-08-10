@@ -1,9 +1,9 @@
-(ns seeing.core
+(ns testdrive.core
   (:require [taoensso.timbre :as timbre
              :refer (trace debug info warn error fatal)]
-            [seeing.config  :refer [config]]
-            [seeing.handler :as handler]
-            [seeing.board   :as board]))
+            [testdrive.config  :refer [config]]
+            [testdrive.handler :as handler]
+            [testdrive.board   :as board]))
 
 (defn setup-logger []
   (timbre/set-level! (or (:log-level config) :info)))

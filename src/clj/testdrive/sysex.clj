@@ -1,4 +1,4 @@
-(ns seeing.sysex
+(ns testdrive.sysex
   (:require [firmata.core :refer
              [read-sysex-event
               consume-sysex

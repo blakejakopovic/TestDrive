@@ -1,13 +1,13 @@
-(ns seeing.board
-  (:use [seeing.sysex])
+(ns testdrive.board
+  (:use [testdrive.sysex])
   (:require [clojure.core.async
               :refer [go chan put! <! >! timeout]]
             [taoensso.timbre :as timbre
               :refer (trace debug info warn error fatal)]
             [firmata.core :refer [open-board event-channel close!]]
             [serial.core :as serial]
-            [seeing.config :refer [config]]
-            [seeing.routes.events :refer [broadcast-event!]]))
+            [testdrive.config :refer [config]]
+            [testdrive.routes.events :refer [broadcast-event!]]))
 
 (def ^{:private true} board (atom nil))
 (def ^{:private true} receiver-ch (atom nil))

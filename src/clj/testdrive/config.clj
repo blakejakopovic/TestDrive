@@ -1,4 +1,4 @@
-(ns seeing.config
+(ns testdrive.config
   (:require [clojure.edn :as edn]))
 
 (def ^{:private true} empty-config "{}")
