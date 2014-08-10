@@ -1,6 +1,6 @@
 TestDrive Dashboard
 ===
-<img src="http://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Mission_control_center.jpg/640px-Mission_control_center.jpg" width="500" />
+<img src="https://cloud.githubusercontent.com/assets/427450/3868668/8f5cc922-2059-11e4-8fc0-816bd225f518.png" />
 
 A **real-time dashboard for visualising Arduino** and micro-controller inner workings. Great for **tinkering**, **robotics**, **sensor monitoring**, and more.
 
@@ -77,9 +77,6 @@ Improvements to the dashboard, including rearranging widgets, widget size suppor
 
 ## Inspired by
 * Bret Victor - [Seeing Spaces (15:11)](http://vimeo.com/97903574)
-
-## Credits
-* [Mission Control image](http://en.wikipedia.org/wiki/Christopher_C._Kraft_Jr._Mission_Control_Center)
 
 ## Contributing
 All contributions welcome. Just keep in mind it's very early on and many things are still falling into place.
