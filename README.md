@@ -1,8 +1,9 @@
 TestDrive Dashboard
 ===
-<img src="https://cloud.githubusercontent.com/assets/427450/3868668/8f5cc922-2059-11e4-8fc0-816bd225f518.png" />
 
 A **real-time dashboard for visualising Arduino** and micro-controller inner workings. Great for **tinkering**, **robotics**, **sensor monitoring**, and more.
+
+<img src="https://cloud.githubusercontent.com/assets/427450/3868668/8f5cc922-2059-11e4-8fc0-816bd225f518.png" />
 
 **!! Please be aware that this is an early release. Things may break. APIs may change. I may look silly.**
 
