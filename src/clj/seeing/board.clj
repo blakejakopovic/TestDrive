@@ -4,7 +4,7 @@
               :refer [go chan put! <! >! timeout]]
             [taoensso.timbre :as timbre
               :refer (trace debug info warn error fatal)]
-            [firmata.core :as firmata]
+            [firmata.core :refer [open-board event-channel close!]]
             [serial.core :as serial]
             [seeing.config :refer [config]]
             [seeing.routes.events :refer [broadcast-event!]]))
@@ -39,12 +39,12 @@
     (info "Connecting to Arduino using" port)
 
     (try
-      (reset! board (firmata/open-board port))
-      (reset! receiver-ch (firmata/event-channel @board))
+      (reset! board (open-board port))
+      (reset! receiver-ch (event-channel @board))
       (.addShutdownHook (Runtime/getRuntime)
                   (Thread. (fn []
                              (info "Disconnecting")
-                             (firmata/close! @board))))
+                             (close! @board))))
         (go (while true
             (if-let [event (<! @receiver-ch)]
               (broadcast-event! event))))
