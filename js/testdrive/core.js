@@ -50,7 +50,13 @@ testdrive.core.label_for = (function label_for(label_id){if(cljs.core._EQ_.call(
 /**
 * A map containing user facing strings for unit types
 */
-testdrive.core.unit_for = new cljs.core.PersistentArrayMap(null, 6, [new cljs.core.Keyword(null,"temperature","temperature",899018429),"celsius (C)",new cljs.core.Keyword(null,"humidity","humidity",-2051231184),"percent (%)",new cljs.core.Keyword(null,"pressure","pressure",505343747),"hectopascals (hPa)",new cljs.core.Keyword(null,"altitude","altitude",463588637),"meters (m)",new cljs.core.Keyword(null,"voltage","voltage",-1909388658),"volts (V)",new cljs.core.Keyword(null,"current","current",-1088038603),"milliamps (mA)"], null);
+testdrive.core.unit_for = new cljs.core.PersistentArrayMap(null, 8, [new cljs.core.Keyword(null,"temperature","temperature",899018429),"celsius (C)",new cljs.core.Keyword(null,"humidity","humidity",-2051231184),"percent (%)",new cljs.core.Keyword(null,"pressure","pressure",505343747),"hectopascals (hPa)",new cljs.core.Keyword(null,"altitude","altitude",463588637),"meters (m)",new cljs.core.Keyword(null,"voltage","voltage",-1909388658),"volts (V)",new cljs.core.Keyword(null,"current","current",-1088038603),"milliamps (mA)",new cljs.core.Keyword(null,"light","light",1918998747),"lux",new cljs.core.Keyword(null,"distance","distance",-1671893894),"meters (m)"], null);
+testdrive.core.pretty_value = (function pretty_value(n){if((n > (999)))
+{return (n | (0));
+} else
+{return n.toFixed((1));
+}
+});
 /**
 * Process a new sensor event by adding it's value to the app-state
 */
@@ -116,7 +122,7 @@ return (function __GT_t9701(title__$1,owner__$1,cursor__$1,widget_header__$1,met
 }
 return (new testdrive.core.t9701(title,owner,cursor,widget_header,null));
 });
-testdrive.core.text_widget_content = (function text_widget_content(cursor,owner){var value = cljs.core.first.call(null,cljs.core.last.call(null,new cljs.core.Keyword(null,"values","values",372645556).cljs$core$IFn$_invoke$arity$1(cljs.core.val.call(null,cursor))));var unit = testdrive.core.unit_for.call(null,new cljs.core.Keyword(null,"kind","kind",-717265803).cljs$core$IFn$_invoke$arity$1(cljs.core.key.call(null,cursor)));var label = testdrive.core.label_for.call(null,new cljs.core.Keyword(null,"label-id","label-id",-1465071949).cljs$core$IFn$_invoke$arity$1(cljs.core.key.call(null,cursor)));if(typeof testdrive.core.t9707 !== 'undefined')
+testdrive.core.text_widget_content = (function text_widget_content(cursor,owner){var value = testdrive.core.pretty_value.call(null,cljs.core.first.call(null,cljs.core.last.call(null,new cljs.core.Keyword(null,"values","values",372645556).cljs$core$IFn$_invoke$arity$1(cljs.core.val.call(null,cursor)))));var unit = testdrive.core.unit_for.call(null,new cljs.core.Keyword(null,"kind","kind",-717265803).cljs$core$IFn$_invoke$arity$1(cljs.core.key.call(null,cursor)));var label = testdrive.core.label_for.call(null,new cljs.core.Keyword(null,"label-id","label-id",-1465071949).cljs$core$IFn$_invoke$arity$1(cljs.core.key.call(null,cursor)));if(typeof testdrive.core.t9707 !== 'undefined')
 {} else
 {
 /**
@@ -537,7 +543,7 @@ testdrive.core.t9907.cljs$lang$ctorPrWriter = (function (this__4118__auto__,writ
 });
 testdrive.core.t9907.prototype.om$core$IRender$ = true;
 testdrive.core.t9907.prototype.om$core$IRender$render$arity$1 = (function (_){var self__ = this;
-var ___$1 = this;return React.DOM.div({"className": ("console"+cljs.core.str.cljs$core$IFn$_invoke$arity$1((cljs.core.truth_(new cljs.core.Keyword(null,"console-hidden?","console-hidden?",-230453177).cljs$core$IFn$_invoke$arity$1(self__.cursor))?"hidden":null))), "id": "console"},React.DOM.div({"className": "header"},React.DOM.span({"className": "glyphicon glyphicon-dashboard"}),React.DOM.span({"className": "title"},"CONSOLE")),React.DOM.div({"className": "content", "id": "console-content"},React.DOM.ul(null,cljs.core.into_array.call(null,cljs.core.map.call(null,((function (___$1){
+var ___$1 = this;return React.DOM.div({"className": ("console"+cljs.core.str.cljs$core$IFn$_invoke$arity$1((cljs.core.truth_(new cljs.core.Keyword(null,"console-hidden?","console-hidden?",-230453177).cljs$core$IFn$_invoke$arity$1(self__.cursor))?" hidden":null))), "id": "console"},React.DOM.div({"className": "header"},React.DOM.span({"className": "glyphicon glyphicon-dashboard"}),React.DOM.span({"className": "title"},"CONSOLE")),React.DOM.div({"className": "content", "id": "console-content"},React.DOM.ul(null,cljs.core.into_array.call(null,cljs.core.map.call(null,((function (___$1){
 return (function (p1__9903_SHARP_){return om.core.build.call(null,testdrive.core.console_entry,p1__9903_SHARP_);
 });})(___$1))
 ,new cljs.core.Keyword(null,"console","console",1228072057).cljs$core$IFn$_invoke$arity$1(self__.cursor))))));

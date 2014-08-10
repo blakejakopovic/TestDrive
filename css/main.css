@@ -161,7 +161,7 @@ li.widget .footer.updated {
 }
 
 .console.hidden {
-  max-height: 0;
+  display-none;
 }
 
 .console .header {
