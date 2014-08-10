@@ -75,7 +75,9 @@
    :pressure    "hectopascals (hPa)"
    :altitude    "meters (m)"
    :voltage     "volts (V)"
-   :current     "milliamps (mA)"})
+   :current     "milliamps (mA)"
+   :light       "lux"
+   :distance    "meters (m)"})
 
 (defn pretty-value [n]
   (if (> n 999)
