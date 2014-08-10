@@ -58,7 +58,7 @@ li.widget {
 li.widget .header {
     height:32px;
     background-color:#272727;
-    color:#75787A;
+    /* color:#75787A; */
     padding:6px 4px 6px 12px;
     color:#FDFDFD;
 }
@@ -146,17 +146,21 @@ li.widget .footer.updated {
   max-height: 0;
 }
 
-.console .title {
-  color:#FFFFFF;
+.console .header {
+  color:#F0F0F0;
   background-color:#30AB9D;
-  height:26px;
-  padding:2px 0 2px 8px;
+  height:32px;
+  padding:6px 4px 6px 12px;
   border-bottom:1px #219386 solid;
+}
+
+.console .title {
+  margin-left:6px;
 }
 
 .console .content {
   color:#000000;
-  height:224px;
+  height:218px;
   padding: 12px 24px 18px 24px;
   overflow:scroll;
 }

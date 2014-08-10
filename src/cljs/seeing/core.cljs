@@ -13,7 +13,6 @@
 
 (enable-console-print!)
 
-
 (def debug
   "Enable console debug logging"
   false)
@@ -36,7 +35,7 @@
 
 (def max-log-entries
   "Set the total maximum number of log entries"
-  200)
+  100)
 
 (def app-container-id "seeing-app")
 
@@ -98,6 +97,7 @@
               (dom/span #js {:className "glyphicon glyphicon-dashboard"})
               (dom/span #js {:className "title"} title)))))
 
+
 (defn text-widget-content [cursor owner]
   (let [value (-> cursor val :values last first)
         unit  (-> cursor key :kind unit-for)
@@ -108,9 +108,11 @@
               (dom/small #js {:className "units"} unit)
               (dom/small nil label)))))
 
+
 (defn widget-footer [cursor owner]
   (om/component
    (dom/div #js {:className "footer"} "just updated")))
+
 
 (defn text-widget [cursor owner]
   (let [kind-class (-> cursor key :kind name)]
@@ -119,6 +121,7 @@
              (om/build widget-header cursor)
              (om/build text-widget-content cursor)
              (om/build widget-footer cursor)))))
+
 
 (defn widget-list [cursor owner]
   (reify
@@ -156,7 +159,7 @@
 
     om/IDidUpdate
     (did-update
-      [this prev-props prev-state]
+      [_ _ _]
       (let [console (. js/document (getElementById "console-content"))]
            (set! (.-scrollTop console) (.-scrollHeight console)))
        (if-not (empty? (:console cursor))
@@ -168,8 +171,9 @@
        [_]
        (dom/div #js {:id "console"
                      :className (str "console" (when (:console-hidden? cursor) "hidden"))}
-                (dom/div #js {:className "title"}
-                         (dom/strong nil "Console"))
+                (dom/div #js {:className "header"}
+                         (dom/span #js {:className "glyphicon glyphicon-dashboard"})
+                         (dom/span #js {:className "title"} "CONSOLE"))
                 (dom/div #js {:id "console-content" :className "content"}
                          (dom/ul nil
                                  (into-array
@@ -183,6 +187,7 @@
    (dom/div #js {:className "no-connection"}
             (dom/h2 nil "Awaiting connection...")
             (dom/a #js {:href "#"} "This seems to be taking a while...?"))))
+
 
 (defn dashboard
   "OM Root function"
@@ -208,6 +213,8 @@
                   (om/build console cursor))
          (om/build not-connected cursor)))))
 
+
+
 ;; SIMUATION
 
 ;; EVENT MESSAGE
@@ -227,6 +234,7 @@
 ;;  :id 0,
 ;;  :value "Hello World"}
 
+
 (defn- simulate-event
   "Simulate a real semi-random event"
   []
@@ -243,6 +251,7 @@
      :value (+ 3.0 (rand-int 2)) :timestamp (now)}
     {:type :label :id 1 :value "Main Bedroom"}
     {:type :label :id 2 :value "Kitchen"}]))
+
 
 (defn simulate-events
   "Start event simulation"
