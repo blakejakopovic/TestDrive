@@ -8,7 +8,7 @@ A **real-time dashboard for visualising Arduino** and micro-controller inner wor
 **!! Please be aware that this is an early release. Things may break. APIs may change. I may look silly.**
 
 ## How it works 
-TestDrive uses the [TestDrive Arduino](#) library to help you send your sensor and related data to the dashboard, using an extension of the popular [Firmata Protocol](http://firmata.org/wiki/Main_Page).
+TestDrive uses the [TestDrive Arduino](https://github.com/blakejakopovic/testdrive-arduino) library to help you send your sensor and related data to the dashboard, using an extension of the popular [Firmata Protocol](http://firmata.org/wiki/Main_Page).
 
 ## Data-flow
 **Arduino ~> USB Serial ~> Computer ~> Web Server ~> Dashboard**
