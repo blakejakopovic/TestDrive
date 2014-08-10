@@ -1,4 +1,4 @@
-Mission Control
+TestDrive Dashboard
 ===
 <img src="http://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Mission_control_center.jpg/640px-Mission_control_center.jpg" width="500" />
 
@@ -7,7 +7,7 @@ A **real-time dashboard for visualising Arduino** and micro-controller inner wor
 **!! Please be aware that this is an early release. Things may break. APIs may change. I may look silly.**
 
 ## How it works 
-Mission Control uses the [TestDrive Arduino](#) library to help you send your sensor and related data to the dashboard, using an extension of the popular [Firmata Protocol](http://firmata.org/wiki/Main_Page).
+TestDrive uses the [TestDrive Arduino](#) library to help you send your sensor and related data to the dashboard, using an extension of the popular [Firmata Protocol](http://firmata.org/wiki/Main_Page).
 
 ## Data-flow
 **Arduino ~> Serial ~> Computer ~> WWW ~> Dashboard**
@@ -22,40 +22,37 @@ sensor readings, but your dashboard will be automatically customised based on th
 ## Key Features
 
 * Simple Arduino library and existing project integration
-* Supports many sensor readings, including **Acceleration, Magnetic, Orientation, Gyro, Temperature, Distance, Light, Pressure, Humidity, Current, Voltage, and Color**
-* Ability to show the same dashboard on multiple screens (including TVs, laptops, tablets, smart phones, projectors, and other browser enabled devices)
+* Supports many sensor readings, including **Temperature, Distance, Light, Pressure, Altitude, Humidity, Current and Voltage** (with Acceleration, Magnetic, Orientation, Gyro, Color and others coming soon)
+* Ability to show the same dashboard on multiple screens at the same time (including TVs, laptops, tablets, smart phones, projectors, and other browser enabled devices)
 
 
 ## Dependancies
+
+**Currently developed and tested using OS X 10.10 Yosemite**
 
 * Java 7+
 * [Clojure/Clojurescript](http://clojure.org/)
 * [Leiningen](http://leiningen.org/)
 
-*Note: I am working on porting the server to a node.js , which will enable node-webkit releases and fewer dependencies.*
+*Note: I am working on porting the server to node.js , which will enable node-webkit based application releases and fewer dependencies.*
 
-## Getting Started
-
+## Getting Started (OS X)
 ```
 # Download the project
-$ git clone ...
-$ cd ...
+$ git clone https://github.com/blakejakopovic/TestDrive.git
+$ cd TestDrive
 
 # Download the TestDrive Arduino Library (TestDrive-Arduino)
-Load the TestDrive Arduino Library into the Arduino IDE
-Open the example TestDriveExample.ino
-Upload the sketch to the Arduino
-
-# Find your serial port path
-$ ls /dev/tty.*
-
-look for <usbmodemxxxx>
+1. Load the TestDrive-Arduino Library* into the Arduino IDE*
+2. Open the example TestDriveExample.ino
+3. Upload the sketch to the Arduino
+*(make sure you keep your Arduino plugged in)
 
 # Compile the dashboard clojurescript
 $ lein cljsbuild once
 
 # Start the TestDrive server
-$ lein run <tty.usbmodemxxxx>
+$ lein run
 
 # Open the dashboard in your browser
 $ open http://localhost:4567/
@@ -64,11 +61,13 @@ The dashboard should automatically populate with
 live widgets.
 
 ```
+1. [TestDrive Arduino Library](https://github.com/blakejakopovic/testdrive-arduino)
+2. [Installing Additional Arduino Libraries](http://arduino.cc/en/Guide/Libraries)
 
 ## Future
 There are plans to support both Serial and TCP communication. This means you won't need to have your serial cable plugged in, and you can visualise data from remote devices.
 
-To make it easier to use, I am planning to compile the clojurescript code to nodejs, and then distribute Mission Control as a node-webkit application. This means you will only need to launch an app, and have everything just work.
+To make it easier to use, I am planning to compile the clojurescript code to nodejs, and then distribute TestDrive as a node-webkit application. This means you will only need to launch an app, and have everything just work.
 
 Improvements to the dashboard, including rearranging widgets, widget size support, more data types,  graphs, maps, 3d visualisations, etc. The goal will be to display your data in the most meaningful way possible.
 
@@ -81,7 +80,7 @@ Improvements to the dashboard, including rearranging widgets, widget size suppor
 * Bret Victor - [Seeing Spaces (15:11)](http://vimeo.com/97903574)
 
 ## Contributing
-All contributions welcome.
+All contributions welcome. Just keep in mind it's very early on and many things are still falling into place.
 
 ## License
 
