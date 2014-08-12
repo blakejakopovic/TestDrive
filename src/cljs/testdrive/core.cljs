@@ -1,13 +1,15 @@
 (ns testdrive.core
   (:require
     [cljs.core.async :refer [chan <! >! put! take!
-                             close! timeout sliding-buffer]]
+                             timeout sliding-buffer]]
     [om.core :as om :include-macros true]
     [om.dom :as dom :include-macros true]
     [clojure.string :refer [upper-case]]
     [cljs-time.core :refer [now]]
     [cljs-time.format :refer [formatters unparse]]
-    [cljs.reader :refer [read-string]])
+    [cljs.reader :refer [read-string]]
+    [firmata.core :refer [open-board event-channel]]
+    [cljs.nodejs :as nodejs])
   (:require-macros
     [cljs.core.async.macros :refer [go]]))
 
@@ -340,16 +342,105 @@
 
 ;; INIT
 
-(defn init
-  "DOM ready initialisation of application"
-  []
-  (om/root dashboard app-state
-    {:target (. js/document (getElementById (config :app-container-id)))})
-  (if-not (config :simulation)
-    (init-websocket)
-    (do
-      (simulate-events)
-      (println "Simulation mode enabled. All data displayed is generated."))))
+;; (defn init
+;;   "DOM ready initialisation of application"
+;;   []
+;;   (om/root dashboard app-state
+;;     {:target (. js/document (getElementById (config :app-container-id)))})
+;;   (if-not (config :simulation)
+;;     (init-websocket)
+;;     (do
+;;       (simulate-events)
+;;       (println "Simulation mode enabled. All data displayed is generated."))))
+
+(def board (atom nil))
+(def receiver-ch (atom nil))
+
+
+(defprotocol FirmataStream
+  (open! [this] "opens the stream")
+  (close! [this] "closes the stream")
+  (listen [this handler] "listens for data on this stream")
+  (write [this data]))
+
+(def SerialPort (.-SerialPort (nodejs/require "serialport")))
+(defrecord SerialStream [port-name baud-rate]
+  FirmataStream
+
+  (open! [this]
+    (let [serial-port (new SerialPort (:port-name this) #js {:baudrate (:baud-rate this)})]
+      (assoc this :serial-port serial-port)))
+
+  (close! [this]
+    (when-let [serial-port (:serial-port this)]
+      (.close serial-port)
+      (dissoc this :serial-port)))
+
+  (listen [this handler]
+    (when-let [serial-port (:serial-port this)]
+      (.on serial-port "data" handler)))
+
+  (write [this data]
+    (when-let [serial-port (:serial-port this)]
+      (.write serial-port data))))
+
+;; (def stream (SerialStream. "/dev/tty.usbmodemfd1231" 57600))
+
+;; (listen (open! stream)
+;;         (fn [data]
+;;           (println data)
+;;           (.dir js/console data)))
+
+
+(def net (nodejs/require "net"))
+(defrecord SocketStream [host port]
+  FirmataStream
+
+  (open! [this]
+    (let [socket (.Socket net)
+          conn (.connect socket (:port this) (:host this))]
+      (assoc this :conn conn)))
+
+  (close! [this]
+    (when-let [conn (:conn this)]
+      (.close conn)
+      (dissoc this :conn)))
+
+  (listen [this handler]
+    (when-let [conn (:conn this)]
+      (.on conn "data" handler)))
+
+  (write [this data]
+    (when-let [conn (:conn this)]
+      (.write conn data))))
+
+;; (def s (SocketStream. "192.168.2.202" 5678))
+
+;; (listen (open! s)
+;;         (fn [data] (println data)))
+
+(defn init []
+  (println "Testing cljs firmata support 2")
+  (let [b (SocketStream. "192.168.2.202" 5678)]
+    (.dir js/console b)
+    (println b)
+    (listen (open! b)
+        (fn [data] (println data)))
+;;     (reset! board (open-board b))
+    ))
+
+
+;; (defn init []
+;;   (println "Testing cljs firmata support")
+;;   (let [b (SerialStream. "/dev/tty.usbmodemfd1231" 57600)]
+;;     (.dir js/console b)
+;;     (println b)
+;;     (reset! board (open-board b)))
+;;   (reset! receiver-ch (event-channel @board))
+;;   (go (while true
+;;         (when-let [event (<! receiver-ch)]
+;;           (println event)))))
+;;   )
 
 ;; Run init on dom ready
 (set! (.-onload js/window) init)

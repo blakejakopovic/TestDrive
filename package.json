@@ -1,0 +1,14 @@
+{
+  "name": "TestDrive",
+  "main": "index.html",
+  "version": "0.0.1",
+  "single-instance": true,
+  "window": {
+    "toolbar": false,
+    "title": "TestDrive Dashboard",
+    "width": 1200,
+    "height": 900,
+    "min_width": 850,
+    "min_height": 600
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "TestDrive",
+  "version": "0.1.0",
+  "main": "index.html",
+  "description": "",
+  "keywords": [],
+  "dependencies": {
+    "serialport": "^1.4.2"
+  },
+  "engine": "node 0.11.13"
+}

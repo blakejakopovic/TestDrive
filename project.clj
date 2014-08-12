@@ -8,7 +8,7 @@
   :source-paths ["src" "src/clj"]
 
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [org.clojure/clojurescript "0.0-2307"]
+                 [org.clojure/clojurescript "0.0-2311"]
 
                  [org.clojure/core.async "0.1.303.0-886421-alpha"]
 
@@ -23,7 +23,7 @@
 
                  [compojure "1.1.8"]
 
-                 [clj-firmata "1.1.2"]
+                 [clj-firmata "2.0.0-SNAPSHOT"]
                  [clj-serial "2.0.1"]
 
                  [om "0.7.1"]
@@ -43,7 +43,8 @@
             :output-dir "resources/public/js/"
             :output-to  "resources/public/js/main.js"
 ;;             :source-map "resources/public/js/main.js.map"
-            :optimization :none
+;;             :target :nodejs
+            :optimization :advanced
             :pretty-print true}
          :notify-command ["terminal-notifier"
                                          "-title"

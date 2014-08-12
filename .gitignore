@@ -10,7 +10,9 @@ pom.xml.asc
 resources/public/js/
 npm-debug.log
 node_modules/
-resources/public/lib/
+/resources/public/lib
 /.env
-/resources/config.edn
-/demo/
+resources/config.edn
+/demo
+/webkitbuilds
+/cache
