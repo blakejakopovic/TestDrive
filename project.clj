@@ -35,6 +35,8 @@
 
   :main testdrive.core
 
+  :aliases {"build-dev" ["do" ["cljsbuild" "clean" "dev"] ["cljsbuild" "once" "dev"]]}
+
   :cljsbuild {
     :builds [
        {:id "dev"

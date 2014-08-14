@@ -1,9 +1,33 @@
 {
   "name": "TestDrive",
-  "version": "0.1.0",
+  "description": "Real-time dashboard for visualising Arduino and micro-controller inner workings",
+  "keywords": ["Dashboard", "Realtime", "Arduino", "Sensors"],
   "main": "index.html",
-  "description": "",
-  "keywords": [],
+  "version": "0.1.0",
+  "window": {
+    "toolbar": true,
+    "frame": true,
+    "title": "TestDrive Dashboard",
+    "width": 1000,
+    "height": 600,
+    "position": "center",
+    "resizable": true
+  },
+
+  "repository": [
+    {
+      "type": "git",
+      "url": "git@github.com:blakejakopovic/TestDrive.git"
+    }
+  ],
+
+  "maintainers": [
+    {
+      "name": "Blake Jakopovic",
+      "email": "blake.jakopovic@gmail.com"
+    }
+  ],
+
   "dependencies": {
     "serialport": "^1.4.2"
   },

@@ -1,26 +1,9 @@
 {
-  "name": "TestDrive Dashboard",
-  "keywords": ["Dashboard", "Realtime", "Arduino"],
+  "name": "TestDrive",
+  "description": "Real-time dashboard for visualising Arduino and micro-controller inner workings",
+  "keywords": ["Dashboard", "Realtime", "Arduino", "Sensors"],
   "main": "index.html",
-  "version": "0.0.1",
-  "single-instance": true,
-  "window": {
-    "toolbar": false,
-    "frame": false,
-    "show": true,
-    "title": "TestDrive Dashboard",
-    "min_width": 1000,
-    "min_height": 585,
-    "max_width": 1000,
-    "max_height": 585,
-    "position": "center"
-  },
-
-  "webkit": {
-    "plugin": false,
-    "java" : false,
-    "page-cache" : false
-  },
+  "version": "0.1.0",
 
   "repository": [
     {
@@ -29,7 +12,7 @@
     }
   ],
 
-  "author": [
+  "maintainers": [
     {
       "name": "Blake Jakopovic",
       "email": "blake.jakopovic@gmail.com"
@@ -39,7 +22,6 @@
   "dependencies": {
     "grunt": "^0.4.5",
     "grunt-contrib-clean": "^0.6.0",
-    "grunt-node-webkit-builder": "^0.2.0",
-    //"nodewebkit": "0.10.1"
+    "grunt-node-webkit-builder": "^0.2.1"
   }
 }
