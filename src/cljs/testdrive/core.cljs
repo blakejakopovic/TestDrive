@@ -38,7 +38,7 @@
          :max-log-entries 100
 
          ;; Enable console (debug) logging
-         :debug false
+         :debug true
 
          ;; Enable simulation mode
          :simulation false}))
