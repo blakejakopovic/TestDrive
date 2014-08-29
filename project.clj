@@ -42,11 +42,11 @@
        {:id "dev"
         :source-paths ["src/cljs"]
         :compiler {
-            :output-dir "resources/public/js/"
+            ; :output-dir "resources/public/js/"
             :output-to  "resources/public/js/main.js"
 ;;             :source-map "resources/public/js/main.js.map"
 ;;             :target :nodejs
-            :optimization :advanced
+            :optimization :simple
             :pretty-print true}
          :notify-command ["terminal-notifier"
                                          "-title"
