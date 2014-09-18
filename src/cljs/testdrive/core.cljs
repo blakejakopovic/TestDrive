@@ -7,7 +7,7 @@
     [cljs-time.core :refer [now]]
     [cljs-time.format :refer [formatters unparse]]
     [cljs.reader :refer [read-string]]
-    [firmata.core :refer [open-board open-serial-board open-network-board event-channel]]
+    [firmata.core :refer [open-serial-board open-network-board event-channel]]
     [firmata.sysex :refer [read-sysex-event consume-sysex read-two-byte-data]]
     [firmata.stream :as st]
     [firmata.stream.spi :refer [read!]]
@@ -430,11 +430,14 @@
   (go
    (while true
      (when-let [event (<! @receiver-ch)]
+       (println "EVENT> " event)
        (>! event-ch event)))))
 
 (defn init-serial-board []
   (open-serial-board "/dev/tty.usbmodemfd1231" handle-board-connected))
 
+(defn init-network-board []
+  (open-network-board "192.168.2.219" 5678 handle-board-connected))
 
 (defn init
   "DOM ready initialisation of application"
@@ -442,7 +445,7 @@
   (om/root dashboard app-state
     {:target (. js/document (getElementById (config :app-container-id)))})
   (if-not (config :simulation)
-    (init-serial-board)
+    (init-network-board)
     (do
       (simulate-events)
       (println "Simulation mode enabled. All data displayed is generated."))))
