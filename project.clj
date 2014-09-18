@@ -31,7 +31,19 @@
                  [clj-time "0.8.0"]
                  [com.andrewmcveigh/cljs-time "0.1.6"]]
 
-  :plugins [[lein-cljsbuild "1.0.3"]]
+  :plugins [[lein-cljsbuild "1.0.3"]
+            [lein-node-webkit-build "0.1.0"]]
+
+  :node-webkit-build {:root "resources/public"
+                      :name "TestDrive"
+                      :osx {
+                        :icon "resources/dashboard-512.icns"}
+                      :platforms #{:osx}
+                      :nw-version "0.10.5"
+                      :output "releases"
+                      :disable-developer-toolbar true
+                      :use-lein-project-version true
+                      :tmp-path "nw-build"}
 
   :main testdrive.core
 
@@ -42,16 +54,14 @@
        {:id "dev"
         :source-paths ["src/cljs"]
         :compiler {
-            ; :output-dir "resources/public/js/"
             :output-to  "resources/public/js/main.js"
 ;;             :source-map "resources/public/js/main.js.map"
-;;             :target :nodejs
             :optimization :simple
             :pretty-print true}
          :notify-command ["terminal-notifier"
                                          "-title"
                                          "CljsBuild Complete"
-                                         "-contentImage" ;; appIcon
+                                         "-contentImage"
                                          "resources/clojure-icon.png"
                                          "-message"]}
       {:id "demo"
@@ -59,5 +69,5 @@
         :compiler {
             :output-dir "demo/js/"
             :output-to  "demo/js/main.js"
-            :optimization :advanced
+            :optimization :whitespace
             :pretty-print true}}]})

@@ -17,3 +17,5 @@ resources/config.edn
 /webkitbuilds
 /cache
 /build
+/nw-build
+/releases
