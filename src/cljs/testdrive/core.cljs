@@ -3,16 +3,13 @@
     [cljs.core.async :refer [chan <! >! put! timeout]]
     [om.core :as om :include-macros true]
     [om.dom :as dom :include-macros true]
-    [clojure.string :refer [upper-case]]
-    [cljs-time.core :refer [now]]
-    [cljs-time.format :refer [formatters unparse]]
-    [cljs.reader :refer [read-string]]
+    [clojure.string :refer [upper-case]] ;; can factor out into UI stuff
+    [cljs-time.core :refer [now]] ;; can factor out into utils and simulation
+    [cljs-time.format :refer [formatters unparse]] ;; can factor out into utils/console-timestamp
+    ;; [cljs.reader :refer [read-string]]
     [firmata.core :refer [open-serial-board open-network-board event-channel]]
-    [firmata.sysex :refer [read-sysex-event consume-sysex read-two-byte-data]]
-    [firmata.stream :as st]
-    [firmata.stream.spi :refer [read!]]
-    [cljs.nodejs :as nodejs]
-   )
+    [testdrive.messages]
+    [cljs.nodejs :as nodejs]) ;; can factor out for UDP beacon
   (:require-macros
     [cljs.core.async.macros :refer [go]]))
 
@@ -20,11 +17,11 @@
 
 (def app-state
   "The initial application state"
-  (atom {;; Dom ID for application
+  (atom {;; Dom ID of application container
          :app-container-id "testdrive-app"
 
-         ;; Websocket port
-         :port 4567
+         ;; Default Server port
+         ;;:port 4567
 
          ;; Board connection status
          :connected? false
@@ -58,13 +55,14 @@
 (defn config [k]
   (get @app-state k))
 
-(defn ws-url [] (str "ws://localhost:" (config :port) "/events"))
+; (defn ws-url [] (str "ws://localhost:" (config :port) "/events"))
 
 (defn debug [] (config :debug))
 
 
 ;; UI HELPERS
 
+;;testdrive.ui.helpers
 (defn label-for
   "Fetches a defined label from the app-state, or uses a generic one"
   [label-id]
@@ -74,6 +72,7 @@
       (upper-case label)
       (str "LABEL #" label-id))))
 
+;;testdrive.ui.helpers
 (def unit-for
   "A map containing user facing strings for unit types"
   {:temperature "celsius (C)"
@@ -116,7 +115,7 @@
 
 
 ;; OM
-
+;;testdrive.ui.widget
 (defn widget-header [cursor owner]
   (let [title (-> cursor key :kind name upper-case)]
     (om/component
@@ -124,7 +123,7 @@
               (dom/span #js {:className "glyphicon glyphicon-dashboard"})
               (dom/span #js {:className "title"} title)))))
 
-
+;;testdrive.ui.widget
 (defn text-widget-content [cursor owner]
   (let [value (-> cursor val :values last first pretty-value)
         unit  (-> cursor key :kind unit-for)
@@ -135,12 +134,12 @@
               (dom/small #js {:className "units"} unit)
               (dom/small nil label)))))
 
-
+;;testdrive.ui.widget
 (defn widget-footer [cursor owner]
   (om/component
    (dom/div #js {:className "footer"} "just updated")))
 
-
+;;testdrive.ui.widget
 (defn text-widget [cursor owner]
   (let [kind-class (-> cursor key :kind name)]
     (om/component
@@ -149,7 +148,7 @@
              (om/build text-widget-content cursor)
              (om/build widget-footer cursor)))))
 
-
+;;testdrive.ui.widget
 (defn widget-list [cursor owner]
   (reify
 
@@ -173,7 +172,7 @@
                 (map #(om/build text-widget % {:react-key (key %)})
                      (:sensors cursor)))))))
 
-
+;;testdrive.ui.console
 (defn console-entry [{:keys [id value] :as cursor} owner]
   (let [label (label-for id)
         timestamp (unparse (formatters :date-hour-minute-second) (now))]
@@ -182,7 +181,7 @@
     (dom/li nil (str timestamp " [" label "]: " value))
     (dom/li nil (str timestamp ": " value))))))
 
-
+;;testdrive.ui.console
 (defn console [cursor owner]
   (reify
 
@@ -209,7 +208,7 @@
                                  (into-array
                                   (map #(om/build console-entry %)
                                                   (:console cursor)))))))))
-
+;;testdrive.ui.placeholder
 (defn not-connected
   "Component to show when no connection"
   [cursor owner]
@@ -219,7 +218,7 @@
             (dom/a #js {:href "https://github.com/blakejakopovic/TestDrive"}
                    "Is this taking a while to connect...?"))))
 
-
+;;testdrive.ui.header
 (defn header-bar
   "Dashboard header with logo and actions"
   [cursor owner]
@@ -231,11 +230,11 @@
                      (dom/span #js {:className "title"} "TestDrive Dashboard"))
             (dom/div #js {:className "actions"} ""))))
 
+;;testdrive.ui.dashboard
 (defn dashboard
   "OM Root function"
   [cursor owner]
   (reify
-
     om/IWillMount
     (will-mount
        [_]
@@ -245,7 +244,6 @@
             :open  (om/update! cursor [:connected?] true)
             :close (om/update! cursor [:connected?] false)
             nil)))))
-
     om/IRender
       (render
        [_]
@@ -277,7 +275,7 @@
 ;;  :id 0,
 ;;  :value "Hello World"}
 
-
+;;testdrive.simulation
 (defn- simulate-event
   "Simulate a real semi-random event"
   []
@@ -298,7 +296,7 @@
     {:type :log :id 1 :value "World"}
     {:type :log :id 0 :value "General message"}]))
 
-
+;;testdrive.simulation
 (defn simulate-events
   "Start event simulation"
   []
@@ -311,117 +309,13 @@
           (<! (timeout 100))))))
 
 
-;; SYSEX
-
-;; Message Types
-(def SYSEX_TYPE_EVENT           0x01 )
-(def SYSEX_TYPE_LABEL           0x02 )
-(def SYSEX_TYPE_LOG             0x03 )
-
-;; Event Kinds
-(def KIND_ACCELEROMETER         0x01 )
-(def KIND_MAGNETIC_FIELD        0x02 )
-(def KIND_ORIENTATION           0x03 )
-(def KIND_GYROSCOPE             0x04 )
-(def KIND_LIGHT                 0x05 )
-(def KIND_PRESSURE              0x06 )
-
-(def KIND_PROXIMITY             0x07 )
-
-(def KIND_HUMIDITY              0x08 )
-(def KIND_TEMPERATURE           0x09 )
-
-(def KIND_VOLTAGE               0x10 )
-(def KIND_CURRENT               0x11 )
-(def KIND_COLOR                 0x12 )
-(def KIND_SWITCH                0x13 )
-(def KIND_ROTATION              0x14 )
-(def KIND_COUNTER               0x25 )
-(def KIND_LATLONG               0x26 )
-
-
-(def event-kinds
-  "Hash-map containing keyword values for event kind"
-  {KIND_ACCELEROMETER        :acceleration
-   KIND_MAGNETIC_FIELD       :magnetic-field
-   KIND_ORIENTATION          :orientation
-   KIND_GYROSCOPE            :gyroscope
-   KIND_LIGHT                :light
-   KIND_PRESSURE             :pressure
-   KIND_PROXIMITY            :distance
-   KIND_HUMIDITY             :humidity
-   KIND_TEMPERATURE          :temperature
-   KIND_VOLTAGE              :voltage
-   KIND_CURRENT              :current
-   KIND_COLOR                :color
-   KIND_SWITCH               :switch})
-
-
-(defn bytes-to-float32
-  "Takes a seq of 4 bytes and returns a float32"
-  [data]
-  (let [buffer   (js/ArrayBuffer. 4)
-        dataview (js/DataView. buffer)
-        ;; TODO: Tidy up
-        _ (.setInt8 dataview 0 (get data 0))
-        _ (.setInt8 dataview 1 (get data 1))
-        _ (.setInt8 dataview 2 (get data 2))
-        _ (.setInt8 dataview 3 (get data 3))
-        value    (.getFloat32 dataview 0 true)] ;; little-endian
-    value))
-
-(defn value-for
-  "Returns one or more float values based on event kind"
-  [kind data]
-  (if (or (= kind KIND_ACCELEROMETER)
-          (= kind KIND_MAGNETIC_FIELD)
-          (= kind KIND_GYROSCOPE)
-          (= kind KIND_COLOR))
-      
-      ;; Handle multi-dimentional value
-      (let [coll (partition 4 data)]
-        (into [] (map bytes-to-float32 coll)))
-      
-      ;; Handle single value 
-      (bytes-to-float32 data)))
-
-(defmethod read-sysex-event SYSEX_TYPE_EVENT
-  [in]
-  (let [kind-id (read! in)
-        kind    (get event-kinds kind-id :unknown)
-        id      (read! in)
-        data    (read-two-byte-data in)
-        value   (value-for kind data)
-        now     (now)]
-    {:type :event
-     :kind-id kind-id
-     :kind kind
-     :id id
-     :value value
-     :timestamp now}))
-
-(defmethod read-sysex-event SYSEX_TYPE_LABEL
-  [in]
-  (let [id   (read! in)
-        value (consume-sysex in "" #(str %1 (char %2)))]
-    {:type :label
-     :id id
-     :value value}))
-
-(defmethod read-sysex-event SYSEX_TYPE_LOG
-  [in]
-  (let [id   (read! in)
-        value (consume-sysex in "" #(str %1 (char %2)))]
-    {:type :log
-     :id id
-     :value value}))
-
 ;; INIT
 
-
+;; REMOVE
 (def board (atom nil))
 (def receiver-ch (atom nil))
 
+;; testdrive.connections
 (defn handle-board-connected [new-board]
   (reset! board new-board)
   (reset! receiver-ch (event-channel @board))
@@ -434,8 +328,8 @@
    (while true
      (let [event-ch (config :event-ch)]
        (when-let [event (<! @receiver-ch)]
-         (>! event-ch event)
-         (if (debug) (println "Event: " event)))))))
+         (if (debug) (println "Event: " event))
+         (>! event-ch event))))))
 
 (defn init-serial-board []
   (open-serial-board "/dev/tty.usbmodemfd1231" handle-board-connected))
@@ -451,6 +345,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;
 
+;; testdrive.beacon
 ; (def dgram (nodejs/require "dgram"))
 
 ; (defn start-board-server-beacon []
@@ -467,19 +362,27 @@
 
 ; (start-server-beacon)
 
+;; Beacon broadcast for devices to connect to via TCP
+;; Beacon broadcast for relay dashboards
+
+;; Listen for Relay beacons
+
 ;;;;;;;;;;;;;;;;;;;;;
 
+;; testdrive.core
 (defn init
   "DOM ready initialisation of application"
   []
   (om/root dashboard app-state
     {:target (. js/document (getElementById (config :app-container-id)))})
   (if-not (config :simulation)
-    (init-network-board)
+    (init-serial-board)
+    ; (init-network-board)
     (do
       (simulate-events)
       (println "Simulation mode enabled. All data displayed is generated."))))
 
+;; testdrive.core
 ;; Run init on dom ready
 (set! (.-onload js/window) init)
 
@@ -487,18 +390,69 @@
 
 ; :connections [
 ;   {:type        :simulation
+;    :host        nil
+;    :port        nil
 ;    :board       nil
 ;    :receiver-ch nil
 ;    :send-ch     nil}
 ;   {:type        :serial
+;    :host        nil
+;    :port        nil
 ;    :board       (atom nil)
 ;    :receiver-ch (atom nil)
 ;    :send-ch     (atom nil)}
 ;   {:type        :client-socket
+;    :host        nil
+;    :port        nil
 ;    :board       (atom nil)
 ;    :receiver-ch (atom nil)
 ;    :send-ch     (atom nil)}
 ;   {:type        :server-socket
+;    :host        nil
+;    :port        nil
+;    :server      nil
+;    :clients     []
 ;    :board       (atom nil)
 ;    :receiver-ch (atom nil)
 ;    :send-ch     (atom nil)}]
+
+
+;
+; [New Serial Connection] (detect port every 3 seconds)
+; [Start Board Server] (start server and beacon)
+; [Connect to board] (enter ip + port)
+; [Connect to relay dashboard]
+; 
+; Stuck? Things not working... take a look at http://gh.com/faq
+; 
+
+
+
+; [ o [ No Active Connections   ]                                      ]
+
+; [ o [ \/ 2 Active Connections ]                                      ]
+;     ---------------------------
+;     | Serial                  |
+;     | tty.usbmodem1324        | 
+;     | (disconnect)            |
+;     ---------------------------
+;     | TCP Client              |
+;     | 192.168.1.199:5678      |
+;     | (disconnect)            |
+;     ---------------------------
+
+; [ Console                                                         \/ ]
+
+; [ Console                                                         /\ ]
+
+
+
+
+; (let [stop (chan)]
+;   (go (loop []
+;         (println "Hello World!")
+;         (let [[v c]] (alts! [(timeout 10000) stop])]
+;           (if (= c stop)
+;             :done
+;             (do (println "I'm done sleeping, going to recur now...")
+;               (recur)))))))

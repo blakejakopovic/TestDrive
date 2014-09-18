@@ -56,7 +56,7 @@
         :compiler {
             :output-to  "resources/public/js/main.js"
 ;;             :source-map "resources/public/js/main.js.map"
-            :optimization :simple
+            :optimization :whitespace
             :pretty-print true}
          :notify-command ["terminal-notifier"
                                          "-title"
