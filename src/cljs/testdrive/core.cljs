@@ -8,8 +8,9 @@
     [cljs-time.format :refer [formatters unparse]]
     [cljs.reader :refer [read-string]]
     [firmata.core :refer [open-board open-serial-board open-network-board event-channel]]
+    [firmata.sysex :refer [read-sysex-event consume-sysex read-two-byte-data]]
     [firmata.stream :as st]
-    ;;[testdrive.stream :as st]
+    [firmata.stream.spi :refer [read!]]
     [cljs.nodejs :as nodejs]
    )
   (:require-macros
@@ -25,7 +26,7 @@
          ;; Websocket port
          :port 4567
 
-         ;; Websocket connection state
+         ;; Board connection status
          :connected? false
 
          ;; Console visibility
@@ -43,12 +44,14 @@
          ;; Enable simulation mode
          :simulation false}))
 
+;; CHANNELS
+
 (def event-ch
-  "Event channel for websocket messages"
+  "Event channel for testdrive messages"
   (chan 10))
 
 (def connection-ch
-  "Channel for websocket state change updates"
+  "Channel for device connection state changes"
   (chan))
 
 ;; STATE HELPERS
@@ -67,10 +70,10 @@
   "Fetches a defined label from the app-state, or uses a generic one"
   [label-id]
   (if (= label-id 0)
-    (str "GENERAL")
+    (str "") ;; blank string
     (if-let [label (get (:labels @app-state) label-id)]
       (upper-case label)
-      (str "LABEL " label-id))))
+      (str "LABEL #" label-id))))
 
 (def unit-for
   "A map containing user facing strings for unit types"
@@ -176,7 +179,9 @@
   (let [label (label-for id)
         timestamp (unparse (formatters :date-hour-minute-second) (now))]
   (om/component
-   (dom/li nil (str timestamp " [" label "]: " value)))))
+  (if (not (= label ""))
+    (dom/li nil (str timestamp " [" label "]: " value))
+    (dom/li nil (str timestamp ": " value))))))
 
 
 (defn console [cursor owner]
@@ -213,7 +218,7 @@
    (dom/div #js {:className "no-connection"}
             (dom/h2 nil "Awaiting connection...")
             (dom/a #js {:href "https://github.com/blakejakopovic/TestDrive"}
-                   "This seems to be taking a while...?"))))
+                   "Is this taking a while to connect...?"))))
 
 
 (defn header-bar
@@ -301,42 +306,146 @@
   (put! connection-ch :open)
   (go (while true
         (let [event (simulate-event)]
-        (>! event-ch event)
-        (if (debug) (println "Simulated Event: " event))
-        (<! (timeout 100))))))
+          (>! event-ch event)
+          (if (debug) (println "Simulated Event: " event))
+          (<! (timeout 100))))))
+
+
+;; SYSEX
+
+;; Message Types
+(def SYSEX_TYPE_EVENT           0x01 )
+(def SYSEX_TYPE_LABEL           0x02 )
+(def SYSEX_TYPE_LOG             0x03 )
+
+;; Event Kinds
+(def KIND_ACCELEROMETER         0x01 )
+(def KIND_MAGNETIC_FIELD        0x02 )
+(def KIND_ORIENTATION           0x03 )
+(def KIND_GYROSCOPE             0x04 )
+(def KIND_LIGHT                 0x05 )
+(def KIND_PRESSURE              0x06 )
+
+(def KIND_PROXIMITY             0x08 )
+
+(def KIND_HUMIDITY              0x12 )
+(def KIND_TEMPERATURE           0x13 )
+
+(def KIND_VOLTAGE               0x15 )
+(def KIND_CURRENT               0x16 )
+(def KIND_COLOR                 0x17 )
+(def KIND_SWITCH                0x18 )
+(def KIND_ROTATION              0x19 )
+(def KIND_COUNTER               0x20 )
+(def KIND_LATLONG               0x21 )
+
+
+(def event-kinds
+  "Hash-map containing keyword values for event kind"
+  {KIND_ACCELEROMETER        :acceleration
+   KIND_MAGNETIC_FIELD       :magnetic-field
+   KIND_ORIENTATION          :orientation
+   KIND_GYROSCOPE            :gyroscope
+   KIND_LIGHT                :light
+   KIND_PRESSURE             :pressure
+   KIND_PROXIMITY            :distance
+   KIND_HUMIDITY             :humidity
+   KIND_TEMPERATURE          :temperature
+   KIND_VOLTAGE              :voltage
+   KIND_CURRENT              :current
+   KIND_COLOR                :color
+   KIND_SWITCH               :switch})
+
+
+
+(defn bytes-to-float32
+  "Takes a seq of 4 bytes and returns a float32"
+  [data]
+  (let [buffer   (js/ArrayBuffer. 4)
+        dataview (js/DataView. buffer)
+        ;; TODO Tidy up
+        _ (.setInt8 dataview 0 (get data 0))
+        _ (.setInt8 dataview 1 (get data 1))
+        _ (.setInt8 dataview 2 (get data 2))
+        _ (.setInt8 dataview 3 (get data 3))
+        value    (.getFloat32 dataview 0 true)] ;; little-endian
+    value))
+
+(defn value-for
+  "Returns one or more float values based on event kind"
+  [kind data]
+  (if (or (= kind KIND_ACCELEROMETER)
+          (= kind KIND_MAGNETIC_FIELD)
+          (= kind KIND_GYROSCOPE)
+          (= kind KIND_COLOR))
+      ;; Handle multi-dimentional value
+      (let [coll (partition 4 data)]
+        (into [] (map bytes-to-float32 coll)))
+      (bytes-to-float32 data)))
+
+(defmethod read-sysex-event SYSEX_TYPE_EVENT
+  [in]
+  (let [kind-id (read! in)
+        kind    (get event-kinds kind-id :unknown)
+        id      (read! in)
+        data    (read-two-byte-data in)
+        value   (value-for kind data)
+        now     (now)]
+    {:type :event
+     :kind kind
+     :id id
+     :value value
+     :timestamp now}))
+
+(defmethod read-sysex-event SYSEX_TYPE_LABEL
+  [in]
+  (let [id   (read! in)
+        value (consume-sysex in "" #(str %1 (char %2)))]
+    {:type :label
+     :id id
+     :value value}))
+
+(defmethod read-sysex-event SYSEX_TYPE_LOG
+  [in]
+  (let [id   (read! in)
+        value (consume-sysex in "" #(str %1 (char %2)))]
+    {:type :log
+     :id id
+     :value value}))
 
 ;; INIT
-
-;; (defn init
-;;   "DOM ready initialisation of application"
-;;   []
-;;   (om/root dashboard app-state
-;;     {:target (. js/document (getElementById (config :app-container-id)))})
-;;   (if-not (config :simulation)
-;;     (init-websocket)
-;;     (do
-;;       (simulate-events)
-;;       (println "Simulation mode enabled. All data displayed is generated."))))
 
 
 (def board (atom nil))
 (def receiver-ch (atom nil))
 
-(defn init []
-  (println "Testing cljs firmata support")
-  
-  (let [stream (open-serial-board "/dev/tty.usbmodemfd1231" 57600)]
-    ; (reset! board stream)
-    ; (reset! receiver-ch (event-channel @board))
-    )
+(defn handle-board-connected [new-board]
+  (reset! board new-board)
+  (reset! receiver-ch (event-channel @board))
 
-  ; (go 
-  ;   (while true
-  ;     (when-let [event (<! @receiver-ch)]
-  ;       (println "--> " event))))
-)
+  ;; Send open event
+  (put! connection-ch :open)
+
+  ;; Read board events
+  (go
+   (while true
+     (when-let [event (<! @receiver-ch)]
+       (>! event-ch event)))))
+
+(defn init-serial-board []
+  (open-serial-board "/dev/tty.usbmodemfd1231" handle-board-connected))
 
 
+(defn init
+  "DOM ready initialisation of application"
+  []
+  (om/root dashboard app-state
+    {:target (. js/document (getElementById (config :app-container-id)))})
+  (if-not (config :simulation)
+    (init-serial-board)
+    (do
+      (simulate-events)
+      (println "Simulation mode enabled. All data displayed is generated."))))
 
 ;; Run init on dom ready
 (set! (.-onload js/window) init)
