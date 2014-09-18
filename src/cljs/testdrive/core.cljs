@@ -42,13 +42,12 @@
          :debug true
 
          ;; Enable simulation mode
-         :simulation false}))
+         :simulation false
+
+         ;; Shared events channel
+         :event-ch (chan 10)}))
 
 ;; CHANNELS
-
-(def event-ch
-  "Event channel for testdrive messages"
-  (chan 10))
 
 (def connection-ch
   "Channel for device connection state changes"
@@ -158,7 +157,7 @@
       (will-mount
        [_]
        (go (while true
-        (if-let [payload (<! event-ch)]
+        (if-let [payload (<! (config :event-ch))]
           (let [type (:type payload)]
             (condp = type
               :label (process-new-label cursor payload)
@@ -305,7 +304,8 @@
   []
   (put! connection-ch :open)
   (go (while true
-        (let [event (simulate-event)]
+        (let [event    (simulate-event)
+              event-ch (config :event-ch)]
           (>! event-ch event)
           (if (debug) (println "Simulated Event: " event))
           (<! (timeout 100))))))
@@ -326,18 +326,18 @@
 (def KIND_LIGHT                 0x05 )
 (def KIND_PRESSURE              0x06 )
 
-(def KIND_PROXIMITY             0x08 )
+(def KIND_PROXIMITY             0x07 )
 
-(def KIND_HUMIDITY              0x12 )
-(def KIND_TEMPERATURE           0x13 )
+(def KIND_HUMIDITY              0x08 )
+(def KIND_TEMPERATURE           0x09 )
 
-(def KIND_VOLTAGE               0x15 )
-(def KIND_CURRENT               0x16 )
-(def KIND_COLOR                 0x17 )
-(def KIND_SWITCH                0x18 )
-(def KIND_ROTATION              0x19 )
-(def KIND_COUNTER               0x20 )
-(def KIND_LATLONG               0x21 )
+(def KIND_VOLTAGE               0x10 )
+(def KIND_CURRENT               0x11 )
+(def KIND_COLOR                 0x12 )
+(def KIND_SWITCH                0x13 )
+(def KIND_ROTATION              0x14 )
+(def KIND_COUNTER               0x25 )
+(def KIND_LATLONG               0x26 )
 
 
 (def event-kinds
@@ -357,13 +357,12 @@
    KIND_SWITCH               :switch})
 
 
-
 (defn bytes-to-float32
   "Takes a seq of 4 bytes and returns a float32"
   [data]
   (let [buffer   (js/ArrayBuffer. 4)
         dataview (js/DataView. buffer)
-        ;; TODO Tidy up
+        ;; TODO: Tidy up
         _ (.setInt8 dataview 0 (get data 0))
         _ (.setInt8 dataview 1 (get data 1))
         _ (.setInt8 dataview 2 (get data 2))
@@ -378,9 +377,12 @@
           (= kind KIND_MAGNETIC_FIELD)
           (= kind KIND_GYROSCOPE)
           (= kind KIND_COLOR))
+      
       ;; Handle multi-dimentional value
       (let [coll (partition 4 data)]
         (into [] (map bytes-to-float32 coll)))
+      
+      ;; Handle single value 
       (bytes-to-float32 data)))
 
 (defmethod read-sysex-event SYSEX_TYPE_EVENT
@@ -392,6 +394,7 @@
         value   (value-for kind data)
         now     (now)]
     {:type :event
+     :kind-id kind-id
      :kind kind
      :id id
      :value value
@@ -429,15 +432,42 @@
   ;; Read board events
   (go
    (while true
-     (when-let [event (<! @receiver-ch)]
-       (println "EVENT> " event)
-       (>! event-ch event)))))
+     (let [event-ch (config :event-ch)]
+       (when-let [event (<! @receiver-ch)]
+         (>! event-ch event)
+         (if (debug) (println "Event: " event)))))))
 
 (defn init-serial-board []
   (open-serial-board "/dev/tty.usbmodemfd1231" handle-board-connected))
 
 (defn init-network-board []
   (open-network-board "192.168.2.219" 5678 handle-board-connected))
+
+(defn init-board-server []
+  ;; (open-network-server 5678 "0.0.0.0" handle-board-connected)
+  ;; (start-board-server-beacon)
+  ;; TODO: add :server-beacon to app-config
+  )
+
+;;;;;;;;;;;;;;;;;;;;
+
+; (def dgram (nodejs/require "dgram"))
+
+; (defn start-board-server-beacon []
+;   (go (let [server (.createSocket dgram "udp4")
+;             ip "192.168.2.69" ;; TODO: detect real IP address
+;             msg (str "TDS+" ip ":" (config :port))
+;             msg_len 21
+;             port 8888
+;             host "230.200.200.200"]
+;     (.bind server 8887 "0.0.0.0" (fn [] (.setBroadcast server true)))
+;     (while true 
+;       (.send server msg 0 msg_len port host)
+;       (<! (timeout 1000))))))
+
+; (start-server-beacon)
+
+;;;;;;;;;;;;;;;;;;;;;
 
 (defn init
   "DOM ready initialisation of application"
@@ -452,3 +482,23 @@
 
 ;; Run init on dom ready
 (set! (.-onload js/window) init)
+
+
+
+; :connections [
+;   {:type        :simulation
+;    :board       nil
+;    :receiver-ch nil
+;    :send-ch     nil}
+;   {:type        :serial
+;    :board       (atom nil)
+;    :receiver-ch (atom nil)
+;    :send-ch     (atom nil)}
+;   {:type        :client-socket
+;    :board       (atom nil)
+;    :receiver-ch (atom nil)
+;    :send-ch     (atom nil)}
+;   {:type        :server-socket
+;    :board       (atom nil)
+;    :receiver-ch (atom nil)
+;    :send-ch     (atom nil)}]
