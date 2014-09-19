@@ -1,0 +1,29 @@
+#! /usr/bin/env bash
+
+SP_VERSION=1.4.6
+NW_VERSION=$(grep ':nw-version' project.clj | sed 's/.*"\(.*\)"[^"]*$/\1/')
+
+cd resources/public/
+npm install serialport@$SP_VERSION
+
+cd node_modules/serialport/ 
+
+echo "Building node-serialport native extensions"
+node-pre-gyp build --runtime=node-webkit --target=$NW_VERSION --target_platform=darwin --target_arch=ia32
+node-pre-gyp build --runtime=node-webkit --target=$NW_VERSION --target_platform=darwin --target_arch=x64
+#node-pre-gyp build --runtime=node-webkit --target=$NW_VERSION --target_platform=linux --target_arch=ia32
+#node-pre-gyp build --runtime=node-webkit --target=$NW_VERSION --target_platform=linux --target_arch=x64
+#node-pre-gyp build --runtime=node-webkit --target=$NW_VERSION --target_platform=win32 --target_arch=ia32
+
+# rename native extenion folders (not sure why.. but required)
+cd build/serialport/v$SP_VERSION/Release/
+
+rm -rf node-webkit-v14-darwin-ia32
+rm -rf node-webkit-v14-darwin-x64
+#rm -rf webkit-v14-win32-ia32
+
+mv node-webkit-v$NW_VERSION-darwin-ia32 node-webkit-v14-darwin-ia32 &>/dev/null
+mv node-webkit-v$NW_VERSION-darwin-x64 node-webkit-v14-darwin-x64 &>/dev/null
+#mv node-webkit-v$NW_VERSION-win32-ia32 node-webkit-v14-win32-ia32  &>/dev/null
+
+exit 0
