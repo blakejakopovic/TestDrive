@@ -161,7 +161,7 @@ li.widget .footer.updated {
 }
 
 .console.hidden {
-  display-none;
+  display:none;
 }
 
 .console .header {

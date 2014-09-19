@@ -7,15 +7,29 @@ pom.xml.asc
 *.class
 /.lein-*
 /.nrepl-port
+
+# Compiled clojurescript
 resources/public/js/
+
+# npm
 npm-debug.log
-node_modules/
-/resources/public/lib
+node_modules
+
+# Bower Dependancies
+/resources/public/vendor
+
 /.env
-resources/config.edn
+
+# Demo build
 /demo
+
+# Node-Webkit
 /webkitbuilds
 /cache
 /build
 /nw-build
 /releases
+
+# Generated
+bower.json
+.bowerrc
