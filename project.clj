@@ -7,7 +7,7 @@
 
   :plugins [[lein-cljsbuild "1.0.3"]
             [lein-npm "0.4.0"]
-            [lein-node-webkit-build "0.1.0"]
+            [lein-node-webkit-build "0.1.1"]
             [lein-bower "0.5.1"]
             [lein-shell "0.4.0"]]
 
@@ -56,7 +56,7 @@
   :node-webkit-build {:root "resources/public"
                       :name "TestDrive"
                       :osx { :icon "resources/dashboard-512.icns" }
-                      :platforms #{ :osx #_:osx64 }
+                      :platforms #{ :osx64 }
                       :nw-version "0.10.5"
                       :output "releases"
                       :disable-developer-toolbar false
