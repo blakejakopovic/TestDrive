@@ -18,7 +18,8 @@
   :plugins [[lein-cljsbuild "1.0.3"]
             [lein-npm "0.4.0"]
             [lein-node-webkit-build "0.1.0"]
-            [lein-bower "0.5.1"]]
+            [lein-bower "0.5.1"]
+            [lein-shell "0.4.0"]]
 
   ;; cljbuild config
   :cljsbuild {
@@ -48,7 +49,8 @@
             :pretty-print true }}]}
 
   ;; npm dependancies
-  :node-dependencies [[bower "1.3.11"]]
+  :node-dependencies [[bower "1.3.11"]
+                      [node-pre-gyp "0.5.25"]]
 
   ;; node-webkit config
   :node-webkit-build {:root "resources/public"
@@ -68,7 +70,8 @@
   
   ;; lein aliases
   :aliases { "install-dep" ["do" ["npm" "install"]
-                                 ["bower" "install"]]
+                                 ["bower" "install"]
+                                 ["shell" "scripts/build_nw_serialport"]]
 
              "build-dev"   ["do" ["cljsbuild" "clean" "dev"] 
                                  ["cljsbuild" "once" "dev"]
