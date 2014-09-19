@@ -5,6 +5,12 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
+  :plugins [[lein-cljsbuild "1.0.3"]
+            [lein-npm "0.4.0"]
+            [lein-node-webkit-build "0.1.0"]
+            [lein-bower "0.5.1"]
+            [lein-shell "0.4.0"]]
+
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/clojurescript "0.0-2322"]
 
@@ -14,12 +20,6 @@
                  [om "0.7.3"]
 
                  [com.andrewmcveigh/cljs-time "0.1.6"]]
-
-  :plugins [[lein-cljsbuild "1.0.3"]
-            [lein-npm "0.4.0"]
-            [lein-node-webkit-build "0.1.0"]
-            [lein-bower "0.5.1"]
-            [lein-shell "0.4.0"]]
 
   ;; cljbuild config
   :cljsbuild {
@@ -31,7 +31,7 @@
             :optimization :whitespace
             :pretty-print true }
          :notify-command ["terminal-notifier"
-                             "-title" "CljsBuild Dev Complete"
+                             "-title" "Build Complete"
                              "-contentImage" "resources/clojure-icon.png"
                              "-message" ]}
 
@@ -56,7 +56,7 @@
   :node-webkit-build {:root "resources/public"
                       :name "TestDrive"
                       :osx { :icon "resources/dashboard-512.icns" }
-                      :platforms #{:osx}
+                      :platforms #{ :osx #_:osx64 }
                       :nw-version "0.10.5"
                       :output "releases"
                       :disable-developer-toolbar false
@@ -79,4 +79,6 @@
             
              "build-rel"   ["do" ["cljsbuild" "clean" "release"]
                                  ["cljsbuild" "once" "release"]
-                                 ["node-webkit-build"]]})
+                                 ["node-webkit-build"]]
+
+             "repack"      ["node-webkit-build"]})
