@@ -8,6 +8,7 @@
     [cljs-time.format :refer [formatters unparse]] ;; can factor out into utils/console-timestamp
     ;; [cljs.reader :refer [read-string]]
     [firmata.core :refer [open-serial-board open-network-board event-channel]]
+    [firmata.util :refer [detect-arduino-port]]
     [testdrive.messages]
     [cljs.nodejs :as nodejs]) ;; can factor out for UDP beacon
   (:require-macros
@@ -369,6 +370,22 @@
 
 ;;;;;;;;;;;;;;;;;;;;;
 
+(detect-arduino-port 
+  (fn [name]
+    (if name
+      (println name)
+      (println "No Serial Device Detected"))))
+
+; (let [list-fn (.-list (nodejs/require "serialport"))]
+;         (list-fn (fn [err ports]
+;           (if err
+;             (do 
+;               (println err)
+;               (println "none"))
+;             (println (first (filter arduino-port? (map #(.-comName %) ports))))))))
+
+;;;;;;;;;;;;;;;;;;;;;
+
 ;; testdrive.core
 (defn init
   "DOM ready initialisation of application"
@@ -376,7 +393,7 @@
   (om/root dashboard app-state
     {:target (. js/document (getElementById (config :app-container-id)))})
   (if-not (config :simulation)
-    (init-serial-board)
+    ; (init-serial-board)
     ; (init-network-board)
     (do
       (simulate-events)
