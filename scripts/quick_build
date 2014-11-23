@@ -1,0 +1,11 @@
+pkill node-webkit
+
+echo "Removing old files"
+rm -r releases/osx64/TestDrive.app/Contents/Resources/app.nw
+
+echo "Copying new files"
+cp -r resources/public/ releases/osx64/TestDrive.app/Contents/Resources/app.nw
+
+echo "Complete"
+
+open "releases/osx64/TestDrive.app"

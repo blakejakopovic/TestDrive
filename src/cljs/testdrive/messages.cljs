@@ -1,9 +1,10 @@
 (ns testdrive.messages
-	(:require [firmata.sysex 
-							:refer [read-sysex-event consume-sysex 
-							read-two-byte-data]]
-						[firmata.stream.spi :refer [read!]]
-						[cljs-time.core :refer [now]]))
+	(:require
+    [firmata.sysex :refer [read-sysex-event
+                           consume-sysex
+                           read-two-byte-data]]
+		[firmata.stream.spi :refer [read!]]
+		[cljs-time.core :refer [now]]))
 
 ;; Message Types
 (def SYSEX_TYPE_EVENT           0x01 )
@@ -23,10 +24,7 @@
 (def KIND_VOLTAGE               0x10 )
 (def KIND_CURRENT               0x11 )
 (def KIND_COLOR                 0x12 )
-(def KIND_SWITCH                0x13 )
-(def KIND_ROTATION              0x14 )
-(def KIND_COUNTER               0x25 )
-(def KIND_LATLONG               0x26 )
+(def KIND_ALTITUDE              0x13 )
 
 
 (def event-kinds
@@ -42,8 +40,7 @@
    KIND_TEMPERATURE          :temperature
    KIND_VOLTAGE              :voltage
    KIND_CURRENT              :current
-   KIND_COLOR                :color
-   KIND_SWITCH               :switch})
+   KIND_COLOR                :color})
 
 
 (defn bytes-to-float32
@@ -66,13 +63,18 @@
           (= kind KIND_MAGNETIC_FIELD)
           (= kind KIND_GYROSCOPE)
           (= kind KIND_COLOR))
-      
+
       ;; Handle multi-dimentional value
       (let [coll (partition 4 data)]
         (into [] (map bytes-to-float32 coll)))
-      
-      ;; Handle single value 
+
+      ;; Handle single value
       (bytes-to-float32 data)))
+
+
+;;
+;; EXTENDING THE CLJ-FIRMATA READ SYSEX MULTI-METHOD
+;;
 
 (defmethod read-sysex-event SYSEX_TYPE_EVENT
   [in]
@@ -89,6 +91,7 @@
      :value value
      :timestamp now}))
 
+
 (defmethod read-sysex-event SYSEX_TYPE_LABEL
   [in]
   (let [id   (read! in)
@@ -96,6 +99,7 @@
     {:type :label
      :id id
      :value value}))
+
 
 (defmethod read-sysex-event SYSEX_TYPE_LOG
   [in]

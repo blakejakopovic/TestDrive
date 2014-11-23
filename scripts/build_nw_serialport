@@ -6,7 +6,7 @@ NW_VERSION=$(grep ':nw-version' project.clj | sed 's/.*"\(.*\)"[^"]*$/\1/')
 cd resources/public/
 npm install serialport@$SP_VERSION
 
-cd node_modules/serialport/ 
+cd node_modules/serialport/
 
 echo "Building node-serialport native extensions"
 node-pre-gyp build --runtime=node-webkit --target=$NW_VERSION --target_platform=darwin --target_arch=ia32

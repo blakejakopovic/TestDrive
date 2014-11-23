@@ -7,19 +7,19 @@
 
   :plugins [[lein-cljsbuild "1.0.3"]
             [lein-npm "0.4.0"]
-            [lein-node-webkit-build "0.1.1"]
+            [lein-node-webkit-build "0.1.2"]
             [lein-bower "0.5.1"]
             [lein-shell "0.4.0"]]
 
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [org.clojure/clojurescript "0.0-2322"]
+                 [org.clojure/clojurescript "0.0-2371"]
 
-                 [clj-firmata "2.0.0-SNAPSHOT"]
-                 [clj-serial "2.0.1"]
+                 [clj-firmata "2.0.0"]
+                 [clj-serial "2.0.2"]
 
                  [om "0.7.3"]
 
-                 [com.andrewmcveigh/cljs-time "0.1.6"]]
+                 [com.andrewmcveigh/cljs-time "0.2.4"]]
 
   ;; cljbuild config
   :cljsbuild {
@@ -29,11 +29,7 @@
         :compiler {
             :output-to  "resources/public/js/main.js"
             :optimization :whitespace
-            :pretty-print true }
-         :notify-command ["terminal-notifier"
-                             "-title" "Build Complete"
-                             "-contentImage" "resources/clojure-icon.png"
-                             "-message" ]}
+            :pretty-print true }}
 
         {:id "release"
         :source-paths ["src/cljs"]
@@ -59,7 +55,7 @@
                       :platforms #{ :osx64 }
                       :nw-version "0.10.5"
                       :output "releases"
-                      :disable-developer-toolbar false
+                      :disable-developer-toolbar true
                       :use-lein-project-version true
                       :tmp-path "nw-build" }
 
@@ -67,16 +63,16 @@
   :bower { :directory "resources/public/vendor" }
   :bower-dependencies [[bootstrap "3.2.0"]
                        [react "0.11.1"]]
-  
+
   ;; lein aliases
   :aliases { "install-dep" ["do" ["npm" "install"]
                                  ["bower" "install"]
                                  ["shell" "scripts/build_nw_serialport"]]
 
-             "build-dev"   ["do" ["cljsbuild" "clean" "dev"] 
+             "build-dev"   ["do" ["cljsbuild" "clean" "dev"]
                                  ["cljsbuild" "once" "dev"]
                                  ["node-webkit-build"]]
-            
+
              "build-rel"   ["do" ["cljsbuild" "clean" "release"]
                                  ["cljsbuild" "once" "release"]
                                  ["node-webkit-build"]]

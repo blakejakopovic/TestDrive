@@ -1,4 +1,5 @@
 {
+  "name": "TestDrive",
   "keywords": ["Dashboard", "Realtime", "Arduino", "Sensors", "Widgets"],
   "main": "index.html",
   "window": {
