@@ -5,7 +5,7 @@ A **real-time dashboard for visualising Arduino** and micro-controller inner wor
 
 [![TestDrive Dashboard](https://cloud.githubusercontent.com/assets/427450/3868668/8f5cc922-2059-11e4-8fc0-816bd225f518.png)](http://blakejakopovic.github.io/TestDrive/)
 
-###[Download Mac Alpha](#)
+###[Download Mac OS X App Beta](https://github.com/blakejakopovic/TestDrive/releases)
 
 **!! Please be aware that this is an early release. Things may break. APIs may change. Linux and Windows support coming soon.**
 
@@ -19,10 +19,10 @@ sensor readings. Your dashboard will be automatically customised based on the da
 * Simple Arduino library and existing project integration
 * Supports many sensor kinds, including **Temperature, Distance, Light, Pressure, Altitude, Humidity, Current and Voltage** (with Acceleration, Magnetic, Orientation, Gyro, Color and others coming soon)
 
-## How it works 
+## How it works
 TestDrive uses the [TestDrive Arduino](https://github.com/blakejakopovic/testdrive-arduino) library to help you send your sensor data to the dashboard, by extending the popular [Firmata Protocol](http://firmata.org/wiki/Main_Page). Data is currently sent via USB serial connection.
 
-*Note: TCP/UDP/Bluetooth are all being experimented on as alternative ways to receive data.* 
+*Note: TCP/UDP/Bluetooth are all being experimented on as alternative ways to receive data.*
 
 ## Getting Started (OS X)
 
