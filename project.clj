@@ -1,4 +1,4 @@
-(defproject testdrive "0.1.0-SNAPSHOT"
+(defproject testdrive "0.1.0"
   :description "Real-time dashboard for visualising Arduino and micro-controller inner workings"
   :url "http://github.com/blakejakopovic"
 
